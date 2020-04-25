@@ -1,5 +1,6 @@
 discord:
-#token: [from triela-private]
+  name: "henriettaII"
+  #token: [from triela-private]
 server:
   ssl:
     key-store: ../triela-private/triela.ml/triela.pkcs12
@@ -19,7 +20,7 @@ spring:
     store-type: redis
   redis:
     host: localhost
-    port: 36379
+    port: 6379
   statemachine:
     data:
       jpa:

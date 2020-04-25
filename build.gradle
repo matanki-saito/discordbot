@@ -79,6 +79,10 @@ buildscript {
             // test用
             // https://assertj.github.io/doc/
             'assertj'                           : '3.15.0',
+
+            // lombok
+            //
+            'lombok'                            : '1.18.12'
     ]
 
     repositories {
@@ -257,13 +261,16 @@ dependencies {
     //runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
 
-    compileOnly('org.projectlombok:lombok')
+    compileOnly("org.projectlombok:lombok:${versions.lombok}")
+    // lombokにはcompileOnly,annotationProcessor,testImplementationが必要
+    // https://medium.com/@tsuyoshiushio/gradle-5-0-with-lombok-and-spring-boot-e8ca564fc552
+    annotationProcessor("org.projectlombok:lombok:${versions.lombok}")
     compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.springframework.security:spring-security-test')
-    testImplementation('org.projectlombok:lombok')
+    testImplementation("org.projectlombok:lombok:${versions.lombok}")
     testImplementation("com.squareup.okhttp3:mockwebserver:${versions.okhttp}")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:${versions.mybatisSpringBootStater}")
     testImplementation("org.assertj:assertj-core:${versions.assertj}")

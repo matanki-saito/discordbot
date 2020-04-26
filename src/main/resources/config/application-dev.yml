@@ -1,6 +1,13 @@
 discord:
   name: "henriettaII"
   #token: [from triela-private]
+
+elasticsearch:
+  host: localhost
+  port: 9200
+  username: "elastic"
+  password: "hogehoge"
+
 server:
   ssl:
     key-store: ../triela-private/triela.ml/triela.pkcs12
@@ -29,8 +36,3 @@ spring:
       mongo:
         repositories:
           enabled: false
-  elasticsearch:
-    rest:
-      uris: "localhost:9200"
-      username: "elastic"
-      password: "hogehoge"

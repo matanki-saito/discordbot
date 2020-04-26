@@ -20,7 +20,11 @@ security:
 spring:
   profiles:
     active: dev
-
+  elasticsearch:
+    rest:
+      uris: "${elasticsearch.host}:${elasticsearch.port}"
+      username: "${elasticsearch.username}"
+      password: "${elasticsearch.password}"
 mybatis:
   configuration:
     mapUnderscoreToCamelCase: true

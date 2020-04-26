@@ -18,3 +18,8 @@ spring:
   redis:
     host: session.dpsihg.0001.apne1.cache.amazonaws.com
     port: 6379
+elasticsearch:
+  host: 172.17.0.1
+  port: 9200
+  username: "elastic"
+  # password [from triela-private]

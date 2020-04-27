@@ -8,3 +8,8 @@ spring:
       maximum-pool-size: 20
       minimum-idle: 10
     initialization-mode: always
+elasticsearch:
+  host: localhost
+  port: 9200
+  username: "elastic"
+  password: "hogehoge"

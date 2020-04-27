@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.popush.henrietta.elasticsearch.config.ElasticSearchConfig;
-import com.popush.henrietta.elasticsearch.service.ElasticsearchService;
 
 @SpringBootTest(classes = {
         ElasticSearchConfig.class,

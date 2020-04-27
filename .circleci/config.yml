@@ -118,7 +118,7 @@ jobs:
           ./gradlew docker dockerPush
       - add_ssh_keys:
           fingerprints:
-            - "27:9e:e8:82:c9:46:d9:b1:f0:0f:97:cd:1f:ab:fc:fd"
+            - "34:eb:fc:97:ce:b7:2e:8f:2b:e3:86:31:8d:33:eb:bd"
       - run: git config --global user.email "matanki.saito@gmail.com"
       - run: git config --global user.name "circleci"
       - run: |

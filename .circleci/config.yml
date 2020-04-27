@@ -31,6 +31,15 @@ executors:
           MYSQL_ROOT_PASSWORD: 1qaz2wsx
           MYSQL_DATABASE: testdb
         command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_general_ci, --default-storage-engine=innodb]
+      - image: elasticsearch:7.6.2
+        environment:
+          cluster.name: ES
+          discovery.type: single-node
+          bootstrap.memory_lock: true
+          xpack.monitoring.collection.enabled: true
+          xpack.security.enabled: true
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+          ELASTIC_PASSWORD: hogehoge
   deployer:
     working_directory: ~/repo
     docker:
@@ -44,6 +53,15 @@ executors:
           MYSQL_ROOT_PASSWORD: 1qaz2wsx
           MYSQL_DATABASE: testdb
         command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_general_ci, --default-storage-engine=innodb]
+      - image: elasticsearch:7.6.2
+        environment:
+          cluster.name: ES
+          discovery.type: single-node
+          bootstrap.memory_lock: true
+          xpack.monitoring.collection.enabled: true
+          xpack.security.enabled: true
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+          ELASTIC_PASSWORD: hogehoge
       - image: gnagaoka/schemaspyweb:latest
         command: [-servermode]
 

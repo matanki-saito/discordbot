@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import com.popush.henrietta.discord.SendMessageService;
 import com.popush.henrietta.discord.model.BotEvents;
 import com.popush.henrietta.discord.model.BotStates;
+import com.popush.henrietta.elasticsearch.config.ElasticsearchService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,8 @@ public class BotEu4SearchState extends InputBasedBotState {
     private final SendMessageService sendMessageService;
 
     private static final Map<String, BotEvents> eventHandleMap = Map.of("end", BotEvents.END,
-                                                                        "move ck2 mode", BotEvents.CK2_TRANSITION);
+                                                                        "move ck2 mode",
+                                                                        BotEvents.CK2_TRANSITION);
 
     @Override
     public Map<String, BotEvents> stateMap() {
@@ -32,7 +34,8 @@ public class BotEu4SearchState extends InputBasedBotState {
     }
 
     @Override
-    public void setTransition(StateMachineTransitionConfigurer<BotStates, BotEvents> transitions) throws Exception {
+    public void setTransition(StateMachineTransitionConfigurer<BotStates, BotEvents> transitions)
+            throws Exception {
         var base = BotStates.EU4_SEARCH;
 
         transitions

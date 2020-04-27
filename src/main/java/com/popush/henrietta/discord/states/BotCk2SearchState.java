@@ -23,7 +23,8 @@ public class BotCk2SearchState extends InputBasedBotState {
     private final SendMessageService sendMessageService;
 
     private static final Map<String, BotEvents> eventHandleMap = Map.of("end", BotEvents.END,
-                                                                        "move eu4 mode", BotEvents.EU4_TRANSITION);
+                                                                        "move eu4 mode",
+                                                                        BotEvents.EU4_TRANSITION);
 
     @Override
     public Map<String, BotEvents> stateMap() {
@@ -31,7 +32,8 @@ public class BotCk2SearchState extends InputBasedBotState {
     }
 
     @Override
-    public void setTransition(StateMachineTransitionConfigurer<BotStates, BotEvents> transitions) throws Exception {
+    public void setTransition(StateMachineTransitionConfigurer<BotStates, BotEvents> transitions)
+            throws Exception {
         var base = BotStates.CK2_SEARCH;
 
         transitions

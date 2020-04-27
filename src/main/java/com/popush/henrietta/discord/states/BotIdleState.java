@@ -4,6 +4,7 @@ import static com.popush.henrietta.discord.StateMachineUtility.getMessageFromHea
 
 import java.util.Map;
 
+import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import com.popush.henrietta.discord.SendMessageService;
 import com.popush.henrietta.discord.model.BotEvents;
 import com.popush.henrietta.discord.model.BotStates;
+import com.popush.henrietta.elasticsearch.config.ElasticsearchService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BotIdleState extends InputBasedBotState {
 
     private final SendMessageService sendMessageService;
+    private final ElasticsearchService elasticsearchService;
 
     private static final Map<String, BotEvents> eventHandleMap = Map.of("eu4", BotEvents.EU4_TRANSITION,
                                                                         "ck2", BotEvents.CK2_TRANSITION);
@@ -32,7 +35,8 @@ public class BotIdleState extends InputBasedBotState {
     }
 
     @Override
-    public void setTransition(StateMachineTransitionConfigurer<BotStates, BotEvents> transitions) throws Exception {
+    public void setTransition(StateMachineTransitionConfigurer<BotStates, BotEvents> transitions)
+            throws Exception {
         var base = BotStates.IDLE;
 
         transitions
@@ -62,5 +66,13 @@ public class BotIdleState extends InputBasedBotState {
                     MessageReceivedEvent event = getMessageFromHeader(context, MessageReceivedEvent.class);
                     sendMessageService.sendPlaneMessage(event.getChannel(), "CK2モードに遷移します");
                 });
+    }
+
+    @Override
+    void otherInput(String messageText, StateContext<BotStates, BotEvents> context) {
+        final MessageReceivedEvent event = getMessageFromHeader(context, MessageReceivedEvent.class);
+        final var result = elasticsearchService.search(messageText);
+
+        sendMessageService.sendPlaneMessage(event.getChannel(), String.format("%d件が見つかりました。", result.size()));
     }
 }

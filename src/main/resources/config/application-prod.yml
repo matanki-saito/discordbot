@@ -23,3 +23,6 @@ elasticsearch:
   port: 9200
   username: "elastic"
   # password [from triela-private]
+discord:
+  name: "henriettaII(dev)"
+  #token: [from triela-private]

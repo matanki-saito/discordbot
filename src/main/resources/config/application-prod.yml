@@ -16,7 +16,7 @@ spring:
   session:
     store-type: redis
   redis:
-    host: session.dpsihg.0001.apne1.cache.amazonaws.com
+    host: 172.17.0.1
     port: 6379
 elasticsearch:
   host: 172.17.0.1

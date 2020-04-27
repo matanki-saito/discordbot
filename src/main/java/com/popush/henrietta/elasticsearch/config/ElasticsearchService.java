@@ -16,6 +16,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +26,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ElasticsearchService {
     private final RestHighLevelClient restHighLevelClient;
+    private final ObjectMapper elasticObjectMapper;
 
-    public List<EsResponseWithData<ParatranzEntry>> search() {
-        var objectMapper = new ObjectMapper();
-
+    public List<EsResponseWithData<ParatranzEntry>> search(@NotNull String word) {
         SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        QueryBuilder query1 = QueryBuilders.matchQuery("translation", "猫");
+        QueryBuilder query1 = QueryBuilders.matchQuery("translation", word);
         boolQuery.filter(query1);
 
         searchBuilder.query(boolQuery);
@@ -47,7 +47,7 @@ public class ElasticsearchService {
             for (SearchHit hit : response.getHits().getHits()) {
                 var data = new EsResponseWithData<>(
                         hit.getId(),
-                        objectMapper.readValue(hit.getSourceAsString(), ParatranzEntry.class));
+                        elasticObjectMapper.readValue(hit.getSourceAsString(), ParatranzEntry.class));
 
                 results.add(data);
             }

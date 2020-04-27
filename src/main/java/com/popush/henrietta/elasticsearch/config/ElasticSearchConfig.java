@@ -1,5 +1,6 @@
 package com.popush.henrietta.elasticsearch.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -36,5 +37,10 @@ public class ElasticSearchConfig {
                 httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 
         return new RestHighLevelClient(httpHost);
+    }
+
+    @Bean
+    public ObjectMapper elasticObjectMapper() {
+        return new ObjectMapper();
     }
 }

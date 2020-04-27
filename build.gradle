@@ -152,7 +152,7 @@ task unpack(type: Copy) {
 }
 
 gitPublish {
-    repoUri = "git@github.com:matanki-saito/dlldistributionserver.git"
+    repoUri = "git@github.com:matanki-saito/discordbot.git"
     branch = 'master'
 
     contents {

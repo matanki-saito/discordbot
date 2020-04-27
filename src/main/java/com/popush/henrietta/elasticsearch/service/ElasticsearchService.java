@@ -1,4 +1,4 @@
-package com.popush.henrietta.elasticsearch.config;
+package com.popush.henrietta.elasticsearch.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.popush.henrietta.discord.states.EsResponseWithData;

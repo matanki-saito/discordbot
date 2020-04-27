@@ -1,4 +1,4 @@
-package com.popush.henrietta.elasticsearch.config;
+package com.popush.henrietta.elasticsearch.service;
 
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
@@ -8,6 +8,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.popush.henrietta.elasticsearch.config.ElasticSearchConfig;
+import com.popush.henrietta.elasticsearch.service.ElasticsearchService;
 
 @SpringBootTest(classes = {
         ElasticSearchConfig.class,

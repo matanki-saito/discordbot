@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import com.popush.henrietta.discord.SendMessageService;
 import com.popush.henrietta.discord.model.BotEvents;
 import com.popush.henrietta.discord.model.BotStates;
-import com.popush.henrietta.elasticsearch.config.ElasticsearchService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import com.popush.henrietta.discord.SendMessageService;
+import com.popush.henrietta.discord.model.BotCallCommand;
 import com.popush.henrietta.discord.model.BotEvents;
 import com.popush.henrietta.discord.model.BotStates;
 import com.popush.henrietta.elasticsearch.service.ElasticsearchService;
@@ -69,10 +70,23 @@ public class BotIdleState extends InputBasedBotState {
     }
 
     @Override
-    void otherInput(String messageText, StateContext<BotStates, BotEvents> context) {
+    void otherInput(BotCallCommand botCallCommand, StateContext<BotStates, BotEvents> context) {
         final MessageReceivedEvent event = getMessageFromHeader(context, MessageReceivedEvent.class);
-        final var result = elasticsearchService.search(messageText);
+        final var result = elasticsearchService.search(botCallCommand);
 
-        sendMessageService.sendPlaneMessage(event.getChannel(), String.format("%d件が見つかりました。", result.size()));
+        if (result.isEmpty()) {
+            sendMessageService.sendPlaneMessage(event.getChannel(), "見つかりませんでした");
+            return;
+        }
+
+        switch (botCallCommand.getCommand()) {
+            case "g":
+                sendMessageService.sendGrepMessage(event.getChannel(), result);
+                break;
+            case "n":
+            default:
+                sendMessageService.sendEmbedMessage(event.getChannel(), result.get(0));
+                break;
+        }
     }
 }

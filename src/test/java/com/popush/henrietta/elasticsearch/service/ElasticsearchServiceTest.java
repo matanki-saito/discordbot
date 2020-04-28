@@ -1,5 +1,7 @@
 package com.popush.henrietta.elasticsearch.service;
 
+import java.util.List;
+
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Disabled;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.popush.henrietta.discord.model.BotCallCommand;
 import com.popush.henrietta.elasticsearch.config.ElasticSearchConfig;
 
 @SpringBootTest(classes = {
@@ -25,7 +28,9 @@ class ElasticsearchServiceTest {
     @Disabled
     @Test
     void search(SoftAssertions softly) {
-        var result = elasticsearchService.search("猫");
+        var result = elasticsearchService.search(BotCallCommand.builder()
+                                                               .searchWords(List.of("猫"))
+                                                               .build());
         softly.assertThat(result).hasSize(4);
     }
 }

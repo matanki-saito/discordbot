@@ -1,25 +1,28 @@
 package com.popush.henrietta.elasticsearch.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.popush.henrietta.discord.states.EsResponseWithData;
-import com.popush.henrietta.discord.states.ParatranzEntry;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.popush.henrietta.discord.model.BotCallCommand;
+import com.popush.henrietta.discord.states.ParatranzEntry;
+import com.popush.henrietta.elasticsearch.model.EsResponseWithData;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -28,16 +31,21 @@ public class ElasticsearchService {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;
 
-    public List<EsResponseWithData<ParatranzEntry>> search(@NotNull String word) {
+    public List<EsResponseWithData<ParatranzEntry>> search(@Nonnull BotCallCommand botCallCommand) {
         SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource();
-
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        QueryBuilder query1 = QueryBuilders.matchQuery("translation", word);
-        boolQuery.filter(query1);
+
+        botCallCommand.getSearchWords().forEach(x -> {
+            var a = QueryBuilders.boolQuery()
+                                 .should(QueryBuilders.matchPhraseQuery("translation", x))
+                                 .should(QueryBuilders.matchPhraseQuery("key", x))
+                                 .should(QueryBuilders.matchPhraseQuery("original", x))
+                                 .minimumShouldMatch(1);
+            boolQuery.must(a);
+        });
 
         searchBuilder.query(boolQuery);
-
-        SearchRequest request = new SearchRequest("eu4").source(searchBuilder);
+        SearchRequest request = new SearchRequest(botCallCommand.getIndex()).source(searchBuilder);
 
         try {
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
@@ -46,6 +54,7 @@ public class ElasticsearchService {
 
             for (SearchHit hit : response.getHits().getHits()) {
                 var data = new EsResponseWithData<>(
+                        botCallCommand,
                         hit.getId(),
                         elasticObjectMapper.readValue(hit.getSourceAsString(), ParatranzEntry.class));
 

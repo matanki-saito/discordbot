@@ -24,5 +24,5 @@ elasticsearch:
   username: "elastic"
   # password [from triela-private]
 discord:
-  name: "henriettaII(dev)"
+  name: "henriettaII(prod)"
   #token: [from triela-private]

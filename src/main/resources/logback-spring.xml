@@ -19,7 +19,7 @@
       <pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
-  
+
   <springProfile name="prod">
     <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
       <!-- do not set your webhook here if you want to commit this file to your VCS, instead look below for an example on how to set it at runtime -->
@@ -42,7 +42,7 @@
       </filter>
     </appender>
 
-    <root level="WARN">
+    <root level="INFO">
       <appender-ref ref="ASYNC_DISCORD" />
       <appender-ref ref="STDOUT" />
     </root>

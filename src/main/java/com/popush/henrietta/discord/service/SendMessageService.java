@@ -12,7 +12,10 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import com.popush.henrietta.discord.states.ParatranzEntry;
 import com.popush.henrietta.elasticsearch.model.EsResponseWithData;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class SendMessageService {
 
     public void sendPlaneMessage(MessageChannel channel, String message) {
@@ -23,20 +26,23 @@ public class SendMessageService {
 
         final EmbedBuilder builder = new EmbedBuilder();
 
-//        builder.addField("key", String.format(
-//                "[%s](%s)",
-//                withData.getData().getKey(),
-//                String.format("https://paratranz.cn/projects/%d/strings?key=%s",
-//                              withData.getData().getPzPjCode(),
-//                              withData.getData().getKey())
-//        ), false);
+        builder.addField("key", String.format(
+                "[%s](%s)",
+                withData.getData().getKey(),
+                String.format("https://paratranz.cn/projects/%d/strings?key=%s",
+                              withData.getData().getPzPjCode(),
+                              withData.getData().getKey())
+        ), false);
         builder.addField("file", withData.getData().getFile(), false);
         builder.addField("original", withData.getData().getOriginal(), false);
         builder.addField("translation", withData
                                  .getData()
                                  .getTranslation(),
                          false);
-        channel.sendMessage(builder.build()).queue();
+        channel.sendMessage(builder.build()).queue(res -> {
+        }, res -> {
+            log.error(res.getMessage());
+        });
     }
 
     public void sendGrepMessage(MessageChannel channel, List<EsResponseWithData<ParatranzEntry>> withDatas) {

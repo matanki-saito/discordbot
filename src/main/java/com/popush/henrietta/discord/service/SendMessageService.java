@@ -2,6 +2,7 @@ package com.popush.henrietta.discord.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
@@ -26,18 +27,17 @@ public class SendMessageService {
 
         final EmbedBuilder builder = new EmbedBuilder();
 
-        builder.addField("key", String.format(
+        builder.addField("key", Optional.ofNullable(String.format(
                 "[%s](%s)",
                 withData.getData().getKey(),
                 String.format("https://paratranz.cn/projects/%d/strings?key=%s",
                               withData.getData().getPzPjCode(),
                               withData.getData().getKey())
-        ), false);
-        builder.addField("file", withData.getData().getFile(), false);
-        builder.addField("original", withData.getData().getOriginal(), false);
-        builder.addField("translation", withData
-                                 .getData()
-                                 .getTranslation(),
+        )).orElse("null"), false);
+        builder.addField("file", Optional.ofNullable(withData.getData().getFile()).orElse("null"), false);
+        builder.addField("original", Optional.ofNullable(withData.getData().getOriginal()).orElse("null"),
+                         false);
+        builder.addField("translation", Optional.ofNullable(withData.getData().getTranslation()).orElse("null"),
                          false);
         channel.sendMessage(builder.build()).queue(res -> {
         }, res -> {

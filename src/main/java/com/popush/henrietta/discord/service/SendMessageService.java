@@ -23,13 +23,13 @@ public class SendMessageService {
 
         final EmbedBuilder builder = new EmbedBuilder();
 
-        builder.addField("key", String.format(
-                "[%s](%s)",
-                withData.getData().getKey(),
-                String.format("https://paratranz.cn/projects/%d/strings?key=%s",
-                              withData.getData().getPzPjCode(),
-                              withData.getData().getKey())
-        ), false);
+//        builder.addField("key", String.format(
+//                "[%s](%s)",
+//                withData.getData().getKey(),
+//                String.format("https://paratranz.cn/projects/%d/strings?key=%s",
+//                              withData.getData().getPzPjCode(),
+//                              withData.getData().getKey())
+//        ), false);
         builder.addField("file", withData.getData().getFile(), false);
         builder.addField("original", withData.getData().getOriginal(), false);
         builder.addField("translation", withData

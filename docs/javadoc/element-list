@@ -3,6 +3,7 @@ com.popush.henrietta.discord
 com.popush.henrietta.discord.config
 com.popush.henrietta.discord.exception
 com.popush.henrietta.discord.model
+com.popush.henrietta.discord.service
 com.popush.henrietta.discord.states
 com.popush.henrietta.elasticsearch.config
 com.popush.henrietta.elasticsearch.model

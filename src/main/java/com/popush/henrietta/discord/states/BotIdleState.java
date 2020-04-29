@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import com.popush.henrietta.discord.SendMessageService;
+import com.popush.henrietta.discord.service.SendMessageService;
 import com.popush.henrietta.discord.model.BotCallCommand;
 import com.popush.henrietta.discord.model.BotEvents;
 import com.popush.henrietta.discord.model.BotStates;

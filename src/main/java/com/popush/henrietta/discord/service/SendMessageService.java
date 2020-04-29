@@ -1,4 +1,4 @@
-package com.popush.henrietta.discord;
+package com.popush.henrietta.discord.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,9 @@ public class SendMessageService {
         builder.addField("key", String.format(
                 "[%s](%s)",
                 withData.getData().getKey(),
-                String.format("https://paratranz.cn/projects/76/strings?key=%s", withData.getData().getKey())
+                String.format("https://paratranz.cn/projects/%d/strings?key=%s",
+                              withData.getData().getPzPjCode(),
+                              withData.getData().getKey())
         ), false);
         builder.addField("file", withData.getData().getFile(), false);
         builder.addField("original", withData.getData().getOriginal(), false);
@@ -41,18 +43,34 @@ public class SendMessageService {
 
         List<String> result = new ArrayList<>();
 
-        int idx = 1;
-        for (var x : withDatas) {
-            Pattern p = Pattern.compile(".{0,7}" + x.getCallCommand().getSearchWords().get(0) + ".{0,7}");
-            var m = p.matcher(x.getData().getTranslation());
-            if (!m.find()) {
-                return;
-            }
+        String[] emojiNumber = { "0⃣", "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣" };
+
+        int idx = 0;
+        for (var x : withDatas.subList(0, Math.min(9, withDatas.size()))) {
             result.add(String.format(
-                    "> %d: %s",
-                    idx++,
+                    "%s %s",
+                    emojiNumber[idx++],
                     x.getData().getKey()));
-            result.add(String.format("　　%s", m.group(0)));
+
+            Pattern p = Pattern.compile(".{0,10}("
+                                        + String.join("|", x.getCallCommand().getSearchWords())
+                                        + ").{0,10}",
+                                        Pattern.CASE_INSENSITIVE);
+
+            var mTrans = p.matcher(x.getData().getTranslation());
+            while (mTrans.find()) {
+                result.add(String.format("　　\uD83D\uDCAC %s", mTrans.group()));
+            }
+
+            var mKey = p.matcher(x.getData().getKey());
+            while (mKey.find()) {
+                result.add(String.format("　　\uD83D\uDCAD %s", mKey.group()));
+            }
+
+            var mOriginal = p.matcher(x.getData().getOriginal());
+            while (mOriginal.find()) {
+                result.add(String.format("　　\uD83D\uDC41\u200D\uD83D\uDDE8 %s", mOriginal.group()));
+            }
         }
 
         channel.sendMessage(String.join("\n", result)).queue();

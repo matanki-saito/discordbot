@@ -5,7 +5,6 @@ import static com.popush.henrietta.discord.StateMachineUtility.getMessageFromHea
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
@@ -22,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class InputBasedBotState implements BotStateTemplate<BotStates, BotEvents, String> {
 
-    private final Pattern pattern = Pattern.compile("^([a-zA-Z0-9\\-_]{1,3})::([a-z0-9=]*)[\\n|\\r| |　]+(.*)?");
+    private final Pattern pattern = Pattern.compile("^([a-zA-Z0-9\\-_]{1,4})::([a-z0-9=]*)[\\n|\\r| |　]+(.*)?");
 
     private BotCallCommand parseCallOutMeCommand(MessageReceivedEvent event) throws CommandErrorException {
         // botの投稿は無視する

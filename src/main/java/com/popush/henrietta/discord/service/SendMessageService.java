@@ -33,11 +33,11 @@ public class SendMessageService {
                 String.format("https://paratranz.cn/projects/%d/strings?key=%s",
                               withData.getData().getPzPjCode(),
                               withData.getData().getKey())
-        )).orElse("null"), false);
-        builder.addField("file", Optional.ofNullable(withData.getData().getFile()).orElse("null"), false);
-        builder.addField("original", Optional.ofNullable(withData.getData().getOriginal()).orElse("null"),
+        )).orElse("不明"), false);
+        builder.addField("file", Optional.ofNullable(withData.getData().getFile()).orElse("不明"), false);
+        builder.addField("original", Optional.ofNullable(withData.getData().getOriginal()).orElse("不明"),
                          false);
-        builder.addField("translation", Optional.ofNullable(withData.getData().getTranslation()).orElse("null"),
+        builder.addField("translation", Optional.ofNullable(withData.getData().getTranslation()).orElse("不明"),
                          false);
         channel.sendMessage(builder.build()).queue(res -> {
         }, res -> {

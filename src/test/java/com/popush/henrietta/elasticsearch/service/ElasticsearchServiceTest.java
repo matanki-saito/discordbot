@@ -28,9 +28,9 @@ class ElasticsearchServiceTest {
     @Disabled
     @Test
     void search(SoftAssertions softly) {
-        var result = elasticsearchService.search(BotCallCommand.builder()
-                                                               .searchWords(List.of("猫"))
-                                                               .build());
+        var result = elasticsearchService.searchTerm(BotCallCommand.builder()
+                                                                   .searchWords(List.of("猫"))
+                                                                   .build());
         softly.assertThat(result).hasSize(4);
     }
 }

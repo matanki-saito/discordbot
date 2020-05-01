@@ -5,7 +5,6 @@ import static com.popush.henrietta.discord.StateMachineUtility.getMessageFromHea
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 
@@ -41,10 +40,11 @@ public abstract class InputBasedBotState implements BotStateTemplate<BotStates, 
         // パース結果を保存
         var result = new BotCallCommand();
         result.setIndex(m.group(1).toLowerCase());
+
         if (m.group(2) != null) {
-            result.setCommand(m.group(2));
+            result.setCommands(List.of(m.group(2).split("")));
         } else {
-            result.setCommand("n");
+            result.setCommands(List.of("n"));
         }
 
         // 検索ワード
@@ -62,15 +62,7 @@ public abstract class InputBasedBotState implements BotStateTemplate<BotStates, 
 
             try {
                 BotCallCommand callCommand = parseCallOutMeCommand(event);
-                if (this.stateMap().containsKey(callCommand.getCommand())) {
-                    context.getStateMachine()
-                           .sendEvent(MessageBuilder
-                                              .withPayload(this.stateMap().get(messageText))
-                                              .setHeader("message", event)
-                                              .build());
-                } else {
-                    otherInput(callCommand, context);
-                }
+                otherInput(callCommand, context);
             } catch (CommandErrorException e) {
                 log.debug("command error");
             }

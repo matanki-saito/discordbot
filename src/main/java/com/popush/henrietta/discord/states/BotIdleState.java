@@ -2,6 +2,7 @@ package com.popush.henrietta.discord.states;
 
 import static com.popush.henrietta.discord.StateMachineUtility.getMessageFromHeader;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.statemachine.StateContext;
@@ -10,10 +11,11 @@ import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import com.popush.henrietta.discord.service.SendMessageService;
 import com.popush.henrietta.discord.model.BotCallCommand;
 import com.popush.henrietta.discord.model.BotEvents;
 import com.popush.henrietta.discord.model.BotStates;
+import com.popush.henrietta.discord.service.SendMessageService;
+import com.popush.henrietta.elasticsearch.model.EsResponseWithData;
 import com.popush.henrietta.elasticsearch.service.ElasticsearchService;
 
 import lombok.RequiredArgsConstructor;
@@ -72,21 +74,23 @@ public class BotIdleState extends InputBasedBotState {
     @Override
     void otherInput(BotCallCommand botCallCommand, StateContext<BotStates, BotEvents> context) {
         final MessageReceivedEvent event = getMessageFromHeader(context, MessageReceivedEvent.class);
-        final var result = elasticsearchService.search(botCallCommand);
+
+        final List<EsResponseWithData<ParatranzEntry>> result;
+        if (botCallCommand.getCommands().contains("b")) {
+            result = elasticsearchService.searchPartialMatch(botCallCommand);
+        } else {
+            result = elasticsearchService.searchTerm(botCallCommand);
+        }
 
         if (result.isEmpty()) {
             sendMessageService.sendPlaneMessage(event.getChannel(), "見つかりませんでした");
             return;
         }
 
-        switch (botCallCommand.getCommand()) {
-            case "g":
-                sendMessageService.sendGrepMessage(event.getChannel(), result);
-                break;
-            case "n":
-            default:
-                sendMessageService.sendEmbedMessage(event.getChannel(), result.get(0));
-                break;
+        if (botCallCommand.getCommands().contains("g")) {
+            sendMessageService.sendGrepMessage(event.getChannel(), result);
+        } else {
+            sendMessageService.sendEmbedMessage(event.getChannel(), result.get(0));
         }
     }
 }

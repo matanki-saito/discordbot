@@ -31,19 +31,40 @@ public class ElasticsearchService {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;
 
-    public List<EsResponseWithData<ParatranzEntry>> search(@Nonnull BotCallCommand botCallCommand) {
-        SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource();
+    public List<EsResponseWithData<ParatranzEntry>> searchTerm(@Nonnull BotCallCommand botCallCommand) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         botCallCommand.getSearchWords().forEach(x -> {
             var a = QueryBuilders.boolQuery()
-                                 .should(QueryBuilders.matchPhraseQuery("translation", x))
-                                 .should(QueryBuilders.matchPhraseQuery("key", x))
-                                 .should(QueryBuilders.matchPhraseQuery("original", x))
+                                 .should(QueryBuilders.termQuery("translation", x))
+                                 .should(QueryBuilders.termQuery("key", x))
+                                 .should(QueryBuilders.termQuery("original", x))
                                  .minimumShouldMatch(1);
             boolQuery.must(a);
         });
 
+        return search(boolQuery, botCallCommand);
+    }
+
+    public List<EsResponseWithData<ParatranzEntry>> searchPartialMatch(@Nonnull BotCallCommand botCallCommand) {
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+
+        botCallCommand.getSearchWords().forEach(x -> {
+            var a = QueryBuilders.boolQuery()
+                                 .should(QueryBuilders.wildcardQuery("translation", String.format("*%s*", x)))
+                                 .should(QueryBuilders.wildcardQuery("key", String.format("*%s*", x)))
+                                 .should(QueryBuilders.wildcardQuery("original", String.format("*%s*", x)))
+                                 .minimumShouldMatch(1);
+            boolQuery.must(a);
+        });
+
+        return search(boolQuery, botCallCommand);
+    }
+
+    private List<EsResponseWithData<ParatranzEntry>> search(BoolQueryBuilder boolQuery,
+                                                            BotCallCommand botCallCommand) {
+
+        SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource();
         searchBuilder.query(boolQuery);
         SearchRequest request = new SearchRequest(botCallCommand.getIndex()).source(searchBuilder);
 
@@ -65,4 +86,5 @@ public class ElasticsearchService {
             throw new IllegalStateException();
         }
     }
+
 }

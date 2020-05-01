@@ -13,6 +13,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BotCallCommand {
     private List<String> searchWords;
+
     private String index;
+
+    @Deprecated
     private String command;
+
+    private List<String> commands;
 }

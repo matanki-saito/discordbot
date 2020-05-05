@@ -36,9 +36,9 @@ public class ElasticsearchService {
 
         botCallCommand.getSearchWords().forEach(x -> {
             var a = QueryBuilders.boolQuery()
-                                 .should(QueryBuilders.termQuery("translation", x))
-                                 .should(QueryBuilders.termQuery("key", x))
-                                 .should(QueryBuilders.termQuery("original", x))
+                                 .should(QueryBuilders.matchPhraseQuery("translation", x))
+                                 .should(QueryBuilders.matchPhraseQuery("key", x))
+                                 .should(QueryBuilders.matchPhraseQuery("original", x))
                                  .minimumShouldMatch(1);
             boolQuery.must(a);
         });
@@ -51,9 +51,9 @@ public class ElasticsearchService {
 
         botCallCommand.getSearchWords().forEach(x -> {
             var a = QueryBuilders.boolQuery()
-                                 .should(QueryBuilders.wildcardQuery("translation", String.format("*%s*", x)))
-                                 .should(QueryBuilders.wildcardQuery("key", String.format("*%s*", x)))
-                                 .should(QueryBuilders.wildcardQuery("original", String.format("*%s*", x)))
+                                 .should(QueryBuilders.regexpQuery("translation", String.format(".*%s.*", x)))
+                                 .should(QueryBuilders.regexpQuery("key", String.format(".*%s.*", x)))
+                                 .should(QueryBuilders.regexpQuery("original", String.format(".*%s.*", x)))
                                  .minimumShouldMatch(1);
             boolQuery.must(a);
         });

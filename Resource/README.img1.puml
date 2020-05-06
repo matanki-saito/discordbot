@@ -4,20 +4,21 @@ Actor User
 participant "bot/channel"
 participant henrietta
 database elasticsearch
-participant inserter.py
+participant paratranz2es
 database paratranz
 Actor translators
+
 
 henrietta <-> "bot/channel" : websocket
 activate henrietta
 
-paratranz <- translators: trans
-inserter.py <- paratranz : get data
+paratranz <- translators: trans texts
+paratranz2es <- paratranz : get data
 
-note over inserter.py: by github actions\nper 6 hour
+note over paratranz2es: by github-actions\nper 3 hour
 
 
-elasticsearch <- inserter.py : bulk insert
+elasticsearch <- paratranz2es : bulk insert
 
 User -> "bot/channel" : call out henrietta
 "bot/channel" -> henrietta : input text and user info

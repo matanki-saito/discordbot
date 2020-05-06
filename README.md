@@ -2,7 +2,13 @@
 
  You can search for text in the translation data by talking to the [discord](https://discord.com/) bot.
  
-  ![img1](Resource/README.img2.png)
+(Single mode)
+
+  ![img2](Resource/README.img2.png)
+  
+(List mode)
+
+  ![img3](Resource/README.img3.png)
 
 ## How to use
 

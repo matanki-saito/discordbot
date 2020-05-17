@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.popush.henrietta.discord.model.BotCallCommand;
 import com.popush.henrietta.discord.states.ParatranzEntry;
+import com.popush.henrietta.elasticsearch.model.EsResponseContainer;
 import com.popush.henrietta.elasticsearch.model.EsResponseWithData;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,8 @@ public class ElasticsearchService {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;
 
-    public List<EsResponseWithData<ParatranzEntry>> searchTerm(@Nonnull BotCallCommand botCallCommand) {
+    public EsResponseContainer<ParatranzEntry> searchTerm(@Nonnull BotCallCommand botCallCommand,
+                                                          int size) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         botCallCommand.getSearchWords().forEach(x -> {
@@ -43,10 +45,11 @@ public class ElasticsearchService {
             boolQuery.must(a);
         });
 
-        return search(boolQuery, botCallCommand);
+        return search(boolQuery, botCallCommand, size);
     }
 
-    public List<EsResponseWithData<ParatranzEntry>> searchPartialMatch(@Nonnull BotCallCommand botCallCommand) {
+    public EsResponseContainer<ParatranzEntry> searchPartialMatch(@Nonnull BotCallCommand botCallCommand,
+                                                                  int size) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         botCallCommand.getSearchWords().forEach(x -> {
@@ -64,13 +67,14 @@ public class ElasticsearchService {
             boolQuery.must(a);
         });
 
-        return search(boolQuery, botCallCommand);
+        return search(boolQuery, botCallCommand, size);
     }
 
-    private List<EsResponseWithData<ParatranzEntry>> search(BoolQueryBuilder boolQuery,
-                                                            BotCallCommand botCallCommand) {
+    private EsResponseContainer<ParatranzEntry> search(BoolQueryBuilder boolQuery,
+                                                       BotCallCommand botCallCommand,
+                                                       int size) {
 
-        SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource();
+        SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource().size(size);
         searchBuilder.query(boolQuery);
         SearchRequest request = new SearchRequest(botCallCommand.getIndex()).source(searchBuilder);
 
@@ -81,13 +85,15 @@ public class ElasticsearchService {
 
             for (SearchHit hit : response.getHits().getHits()) {
                 var data = new EsResponseWithData<>(
-                        botCallCommand,
                         hit.getId(),
                         elasticObjectMapper.readValue(hit.getSourceAsString(), ParatranzEntry.class));
-
                 results.add(data);
             }
-            return results;
+            return EsResponseContainer.<ParatranzEntry>builder()
+                    .findCount(response.getHits().getTotalHits().value)
+                    .callCommand(botCallCommand)
+                    .data(results)
+                    .build();
         } catch (IOException e) {
             throw new IllegalStateException();
         }

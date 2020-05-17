@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 import com.popush.henrietta.discord.states.ParatranzEntry;
-import com.popush.henrietta.elasticsearch.model.EsResponseWithData;
+import com.popush.henrietta.elasticsearch.model.EsResponseContainer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,43 +23,55 @@ public class SendMessageService {
         channel.sendMessage(message).queue();
     }
 
-    public void sendEmbedMessage(MessageChannel channel, EsResponseWithData<ParatranzEntry> withData) {
+    public void sendEmbedMessage(MessageChannel channel, EsResponseContainer<ParatranzEntry> container) {
 
         final EmbedBuilder builder = new EmbedBuilder();
 
-        builder.addField("key", Optional.ofNullable(String.format(
-                "[%s](%s)",
-                withData.getData().getKey(),
-                String.format("https://paratranz.cn/projects/%d/strings?key=%s",
-                              withData.getData().getPzPjCode(),
-                              withData.getData().getKey())
-        )).orElse("不明"), false);
-        builder.addField("file", Optional.ofNullable(withData.getData().getFile()).orElse("不明"), false);
-        builder.addField("original", Optional.ofNullable(withData.getData().getOriginal()).orElse("不明"),
+        final var data = container.getData().get(0).getData();
+
+        final var url = String.format("https://paratranz.cn/projects/%d/strings?key=%s",
+                                      data.getPzPjCode(),
+                                      data.getKey());
+        final var key = String.format("[%s](%s)", data.getKey(), url);
+
+        builder.appendDescription(String.format("%d件見つかりました。1件目を表示します", container.getFindCount()));
+
+        builder.addField("key",
+                         Optional.ofNullable(key).orElse("不明"),
                          false);
-        builder.addField("translation", Optional.ofNullable(withData.getData().getTranslation()).orElse("不明"),
+
+        builder.addField("file",
+                         Optional.ofNullable(data.getFile()).orElse("不明"),
                          false);
+
+        builder.addField("original",
+                         Optional.ofNullable(data.getOriginal()).orElse("不明"),
+                         false);
+
+        builder.addField("translation",
+                         Optional.ofNullable(data.getTranslation()).orElse("不明"),
+                         false);
+
         channel.sendMessage(builder.build()).queue(res -> {
-        }, res -> {
-            log.error(res.getMessage());
-        });
+        }, res -> log.error(res.getMessage()));
     }
 
-    public void sendGrepMessage(MessageChannel channel, List<EsResponseWithData<ParatranzEntry>> withDatas) {
+    public void sendGrepMessage(MessageChannel channel,
+                                EsResponseContainer<ParatranzEntry> container) {
 
         List<String> result = new ArrayList<>();
 
         String[] emojiNumber = { "0⃣", "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣" };
 
         int idx = 0;
-        for (var x : withDatas.subList(0, Math.min(9, withDatas.size()))) {
+        for (var x : container.getData().subList(0, Math.min(9, container.getData().size()))) {
             result.add(String.format(
                     "%s %s",
                     emojiNumber[idx++],
                     x.getData().getKey()));
 
             Pattern p = Pattern.compile(".{0,10}("
-                                        + String.join("|", x.getCallCommand().getSearchWords())
+                                        + String.join("|", container.getCallCommand().getSearchWords())
                                         + ").{0,10}",
                                         Pattern.CASE_INSENSITIVE);
 

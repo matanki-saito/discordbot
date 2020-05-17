@@ -2,7 +2,6 @@ package com.popush.henrietta.discord.states;
 
 import static com.popush.henrietta.discord.StateMachineUtility.getMessageFromHeader;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.statemachine.StateContext;
@@ -15,7 +14,7 @@ import com.popush.henrietta.discord.model.BotCallCommand;
 import com.popush.henrietta.discord.model.BotEvents;
 import com.popush.henrietta.discord.model.BotStates;
 import com.popush.henrietta.discord.service.SendMessageService;
-import com.popush.henrietta.elasticsearch.model.EsResponseWithData;
+import com.popush.henrietta.elasticsearch.model.EsResponseContainer;
 import com.popush.henrietta.elasticsearch.service.ElasticsearchService;
 
 import lombok.RequiredArgsConstructor;
@@ -75,22 +74,26 @@ public class BotIdleState extends InputBasedBotState {
     void otherInput(BotCallCommand botCallCommand, StateContext<BotStates, BotEvents> context) {
         final MessageReceivedEvent event = getMessageFromHeader(context, MessageReceivedEvent.class);
 
-        final List<EsResponseWithData<ParatranzEntry>> result;
-        if (botCallCommand.getCommands().contains("b")) {
-            result = elasticsearchService.searchPartialMatch(botCallCommand);
-        } else {
-            result = elasticsearchService.searchTerm(botCallCommand);
-        }
+        final EsResponseContainer<ParatranzEntry> result;
 
-        if (result.isEmpty()) {
+        // 検索取得最大数
+        final int size = botCallCommand.getCommands().contains("g") ? 10 : 1;
+
+        // 検索
+        result = botCallCommand.getCommands().contains("b")
+                 ? elasticsearchService.searchPartialMatch(botCallCommand, size)
+                 : elasticsearchService.searchTerm(botCallCommand, size);
+
+        if (result.getData().isEmpty()) {
             sendMessageService.sendPlaneMessage(event.getChannel(), "見つかりませんでした");
             return;
         }
 
+        // メッセージ配信
         if (botCallCommand.getCommands().contains("g")) {
             sendMessageService.sendGrepMessage(event.getChannel(), result);
         } else {
-            sendMessageService.sendEmbedMessage(event.getChannel(), result.get(0));
+            sendMessageService.sendEmbedMessage(event.getChannel(), result);
         }
     }
 }

@@ -30,7 +30,8 @@ class ElasticsearchServiceTest {
     void search(SoftAssertions softly) {
         var result = elasticsearchService.searchTerm(BotCallCommand.builder()
                                                                    .searchWords(List.of("猫"))
-                                                                   .build());
-        softly.assertThat(result).hasSize(4);
+                                                                   .build(),
+                                                     10);
+        softly.assertThat(result.getData()).hasSize(4);
     }
 }

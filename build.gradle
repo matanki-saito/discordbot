@@ -30,6 +30,10 @@ buildscript {
             // https://commons.apache.org/
             'apacheCommonCodec'                 : '1.13',
 
+            // apache common Lang
+            // https://commons.apache.org/
+            'apacheCommonLang'                  : '3.10',
+
             // log
             // http://www.slf4j.org/
             'slf4jApi'                          : '1.7.30',
@@ -237,6 +241,7 @@ dependencies {
     // other
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jacksonDatatypeJsr310}")
     implementation("org.apache.commons:commons-pool2:${versions.apacheCommonsPool}")
+    implementation("org.apache.commons:commons-lang3:${versions.apacheCommonLang}")
     implementation("io.lettuce:lettuce-core:${versions.lettuce}")
     implementation("com.squareup.okhttp3:okhttp:${versions.okhttp}")
     implementation("com.squareup.retrofit2:retrofit:${versions.retrofit}")

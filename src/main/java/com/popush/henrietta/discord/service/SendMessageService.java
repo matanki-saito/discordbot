@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,19 +38,23 @@ public class SendMessageService {
         builder.appendDescription(String.format("%d件見つかりました。1件目を表示します", container.getFindCount()));
 
         builder.addField("key",
-                         Optional.ofNullable(key).orElse("不明"),
+                         StringUtils.abbreviate(Optional.ofNullable(key).orElse("不明"),
+                                                1000),
                          false);
 
         builder.addField("file",
-                         Optional.ofNullable(data.getFile()).orElse("不明"),
+                         StringUtils.abbreviate(Optional.ofNullable(data.getFile()).orElse("不明"),
+                                                1000),
                          false);
 
         builder.addField("original",
-                         Optional.ofNullable(data.getOriginal()).orElse("不明"),
+                         StringUtils.abbreviate(Optional.ofNullable(data.getOriginal()).orElse("不明"),
+                                                1000),
                          false);
 
         builder.addField("translation",
-                         Optional.ofNullable(data.getTranslation()).orElse("不明"),
+                         StringUtils.abbreviate(Optional.ofNullable(data.getTranslation()).orElse("不明"),
+                                                1000),
                          false);
 
         channel.sendMessage(builder.build()).queue(res -> {

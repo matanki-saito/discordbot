@@ -43,15 +43,10 @@ public class SendMessageService {
             final var key = String.format("[%s](%s)", data.getKey(), url);
 
             builder.appendDescription(
-                    String.format("%d件見つかりました。%d件目を表示します（最大10件）", container.getFindCount(), idx + 1));
+                    String.format("%d件見つかりました。%d件目を表示します（最大5件）", container.getFindCount(), idx + 1));
 
             builder.addField("key",
                              StringUtils.abbreviate(Optional.ofNullable(key).orElse("不明"),
-                                                    1000),
-                             false);
-
-            builder.addField("file",
-                             StringUtils.abbreviate(Optional.ofNullable(data.getFile()).orElse("不明"),
                                                     1000),
                              false);
 

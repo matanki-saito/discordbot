@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 
+import com.github.ygimenez.method.Pages;
 import com.popush.henrietta.discord.Bot;
 
 import lombok.RequiredArgsConstructor;
@@ -27,9 +28,14 @@ public class BotDiscordConfig {
 
     @Bean
     public JDA beanJda() throws LoginException {
-        return new JDABuilder(discordToken)
+
+        var jda = new JDABuilder(discordToken)
                 .addEventListeners(bot)
                 .setActivity(Activity.playing(name))
                 .build();
+
+        Pages.activate(jda);
+
+        return jda;
     }
 }

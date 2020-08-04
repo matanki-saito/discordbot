@@ -22,6 +22,10 @@ buildscript {
             // https://github.com/DV8FromTheWorld/JDA
             'JDA'                               : '4.1.1_101',
 
+            // discord pagination util
+            // https://github.com/ygimenez/Pagination-Utils
+            'JDAUtils'                          : '1.2.2',
+
             // aws library
             // https://github.com/aws/aws-sdk-java-v2/
             'awssdk'                            : '2.11.12',
@@ -250,6 +254,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:${versions.slf4jApi}")
     implementation("com.github.napstr:logback-discord-appender:${versions.logbackDiscord}")
     implementation("net.dv8tion:JDA:${versions.JDA}")
+    implementation("com.github.ygimenez:Pagination-Utils:${versions.JDAUtils}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("commons-codec:commons-codec:${versions.apacheCommonCodec}")
     implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:${versions.elasticsearch}")

@@ -77,7 +77,7 @@ public class BotIdleState extends InputBasedBotState {
         final EsResponseContainer<ParatranzEntry> result;
 
         // 検索取得最大数
-        final int size = botCallCommand.getCommands().contains("g") ? 10 : 1;
+        final int size = botCallCommand.getCommands().contains("g") ? 10 : 5;
 
         // 検索
         result = botCallCommand.getCommands().contains("b")

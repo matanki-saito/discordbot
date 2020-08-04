@@ -10,8 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
@@ -32,17 +32,18 @@ public class SendMessageService {
     public void sendEmbedMessage(MessageChannel channel, EsResponseContainer<ParatranzEntry> container) {
         final ArrayList<Page> pages = new ArrayList<>();
 
-        container.getData().forEach(parentData -> {
+        for (var idx = 0; idx < container.getData().size(); idx++) {
             final EmbedBuilder builder = new EmbedBuilder();
 
-            var data = parentData.getData();
+            var data = container.getData().get(idx).getData();
 
             final var url = String.format("https://paratranz.cn/projects/%d/strings?key=%s",
                                           data.getPzPjCode(),
                                           data.getKey());
             final var key = String.format("[%s](%s)", data.getKey(), url);
 
-            builder.appendDescription(String.format("%d件見つかりました。1件目を表示します", container.getFindCount()));
+            builder.appendDescription(
+                    String.format("%d件見つかりました。%d件目を表示します（最大10件）", container.getFindCount(), idx + 1));
 
             builder.addField("key",
                              StringUtils.abbreviate(Optional.ofNullable(key).orElse("不明"),
@@ -65,9 +66,9 @@ public class SendMessageService {
                              false);
 
             pages.add(new Page(PageType.EMBED, builder.build()));
-        });
+        }
 
-        channel.sendMessage((Message) pages.get(0).getContent()).queue(success -> {
+        channel.sendMessage((MessageEmbed) pages.get(0).getContent()).queue(success -> {
             Pages.paginate(success, pages, 60, TimeUnit.SECONDS);
         }, res -> log.error(res.getMessage()));
     }

@@ -1,11 +1,10 @@
 buildscript {
     ext.versions = [
             // Spring
-            'springBootVersion'                 : '2.2.6.RELEASE',
+            'springBootVersion'                 : '2.3.1.RELEASE',
             'springStateMachine'                : '2.2.0.RELEASE',
-            'springOauth2Autoconfig'            : '2.1.5.RELEASE',
 
-            // OR mepper
+            // OR mapper
             // https://mybatis.org/mybatis-3/ja/
             'mybatisSpringBootStater'           : '2.1.2',
 
@@ -25,14 +24,6 @@ buildscript {
             // discord pagination util
             // https://github.com/ygimenez/Pagination-Utils
             'JDAUtils'                          : '1.2.2',
-
-            // aws library
-            // https://github.com/aws/aws-sdk-java-v2/
-            'awssdk'                            : '2.11.12',
-
-            // apache common library. hmacの算出に使用
-            // https://commons.apache.org/
-            'apacheCommonCodec'                 : '1.13',
 
             // apache common Lang
             // https://commons.apache.org/
@@ -256,7 +247,6 @@ dependencies {
     implementation("net.dv8tion:JDA:${versions.JDA}")
     implementation("com.github.ygimenez:Pagination-Utils:${versions.JDAUtils}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("commons-codec:commons-codec:${versions.apacheCommonCodec}")
     implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:${versions.elasticsearch}")
     // elasticsearch-rest-clientはhigh-level-clientに必要
     // https://medium.com/@hsiehjenhsuan/%E8%A7%A3%E6%B1%BA-elasticsearch-%E4%BD%BF%E7%94%A8-java-high-level-rest-client-%E6%99%82%E5%87%BA%E7%8F%BE-noclassdeffounderror-%E9%8C%AF%E8%AA%A4-10077fcda6b3

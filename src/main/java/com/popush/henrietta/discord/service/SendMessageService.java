@@ -37,7 +37,7 @@ public class SendMessageService {
 
             var data = container.getData().get(idx).getData();
 
-            final var url = String.format("https://paratranz.cn/projects/%d/strings?key=%s",
+            final var url = String.format("https://paratranz.cn/projects/%d/strings?key=%s&advanced=1",
                                           data.getPzPjCode(),
                                           data.getKey());
             final var key = String.format("[%s](%s)", data.getKey(), url);

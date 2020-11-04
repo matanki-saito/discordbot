@@ -29,7 +29,7 @@ public class BotDiscordConfig {
     @Bean
     public JDA beanJda() throws LoginException {
 
-        var jda = new JDABuilder(discordToken)
+        var jda = JDABuilder.createDefault(discordToken)
                 .addEventListeners(bot)
                 .setActivity(Activity.playing(name))
                 .build();

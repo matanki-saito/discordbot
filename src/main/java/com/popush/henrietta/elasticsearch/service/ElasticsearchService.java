@@ -37,12 +37,33 @@ public class ElasticsearchService {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         botCallCommand.getSearchWords().forEach(x -> {
-            var a = QueryBuilders.boolQuery()
-                                 .should(QueryBuilders.matchPhraseQuery("translation", x))
-                                 .should(QueryBuilders.matchPhraseQuery("key", x))
-                                 .should(QueryBuilders.matchPhraseQuery("original", x))
-                                 .minimumShouldMatch(1);
-            boolQuery.must(a);
+            var queryBuilder = QueryBuilders.boolQuery();
+
+            var isCommandSearch = false;
+
+            if (botCallCommand.getCommands().contains("o")) {
+                isCommandSearch = true;
+                queryBuilder.should(QueryBuilders.matchPhraseQuery("original", x));
+            }
+
+            if (botCallCommand.getCommands().contains("k")) {
+                isCommandSearch = true;
+                queryBuilder.should(QueryBuilders.matchPhraseQuery("key", x));
+            }
+
+            if (botCallCommand.getCommands().contains("t")) {
+                isCommandSearch = true;
+                queryBuilder.should(QueryBuilders.matchPhraseQuery("translation", x));
+            }
+
+            if (!isCommandSearch) {
+                queryBuilder.should(QueryBuilders.matchPhraseQuery("original", x))
+                            .should(QueryBuilders.matchPhraseQuery("key", x))
+                            .should(QueryBuilders.matchPhraseQuery("translation", x));
+            }
+
+            queryBuilder.minimumShouldMatch(1);
+            boolQuery.must(queryBuilder);
         });
 
         return search(boolQuery, botCallCommand, size);

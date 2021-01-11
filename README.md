@@ -1,14 +1,14 @@
 # Discord bot server
 
- You can search for text in the translation data by talking to the [discord](https://discord.com/) bot.
- 
+You can search for text in the translation data by talking to the [discord](https://discord.com/) bot.
+
 (Single mode)
 
-  ![img2](Resource/README.img2.png)
-  
+![img2](Resource/README.img2.png)
+
 (List mode)
 
-  ![img3](Resource/README.img3.png)
+![img3](Resource/README.img3.png)
 
 ## How to use
 
@@ -23,6 +23,7 @@ Invite this bot to your discord server.Click this link.
 ```
 SearchPrefix::options search-word ...
 ```
+
 Example
 
 ```
@@ -31,7 +32,8 @@ Eu4::gb 巫女　沖縄
 
 #### SearchPrefix
 
-See [paratranz2es](https://github.com/matanki-saito/paratranz2es) README.Lowercase and uppercase letters are ignored. 
+See [paratranz2es](https://github.com/matanki-saito/paratranz2es) README.Lowercase and uppercase letters are
+ignored.
 
 #### Options
 
@@ -40,14 +42,18 @@ See [paratranz2es](https://github.com/matanki-saito/paratranz2es) README.Lowerca
 | g | list mode |
 | b | Partial Match |
 | n | Phrase Match(default) |
+| t | Search source is translated text |
+| k | Search source is key  |
+| o | Search source is original text |
 
 #### Search-word
 
-If you list multiple words separated by spaces, the result is an AND search.Spaces are allowed in both half and full-width spaces.
+If you list multiple words separated by spaces, the result is an AND search.Spaces are allowed in both half and
+full-width spaces.
 
 ## Sequence
- 
- ![img1](Resource/README.img1.png)
+
+![img1](Resource/README.img1.png)
 
 ### Translators and paratranz
 
@@ -65,12 +71,11 @@ Elasticsearch is a search engine.It is on EC2(ECS) of AWS.
 
 This project.
 
-
 ### bot/channel and User
 
 [Discord applications](https://discord.com/developers/applications) and users.
 
 ## Code documents
 
- - [Schemaspy](https://matanki-saito.github.io/discordbot/schemadoc/)
- - [Javadoc](https://matanki-saito.github.io/discordbot/javadoc/)
+- [Schemaspy](https://matanki-saito.github.io/discordbot/schemadoc/)
+- [Javadoc](https://matanki-saito.github.io/discordbot/javadoc/)

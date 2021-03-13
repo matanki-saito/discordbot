@@ -28,11 +28,16 @@ public class BotDiscordConfig {
 
     @Bean
     public JDA beanJda() throws LoginException {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
 
         var jda = JDABuilder.createDefault(discordToken)
-                .addEventListeners(bot)
-                .setActivity(Activity.playing(name))
-                .build();
+                            .addEventListeners(bot)
+                            .setActivity(Activity.playing(name))
+                            .build();
 
         Pages.activate(jda);
 

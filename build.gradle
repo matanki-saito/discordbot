@@ -101,8 +101,8 @@ apply plugin: 'org.ajoberstar.git-publish'
 apply plugin: 'com.gorylenko.gradle-git-properties'
 
 group = 'com.popush'
-sourceCompatibility = 14
-targetCompatibility = 14
+sourceCompatibility = 15
+targetCompatibility = 15
 
 gitProperties {
     customProperty 'version', version

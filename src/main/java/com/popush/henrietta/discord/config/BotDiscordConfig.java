@@ -10,7 +10,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 
+import com.github.ygimenez.exception.InvalidHandlerException;
 import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.PaginatorBuilder;
 import com.popush.henrietta.discord.Bot;
 
 import lombok.RequiredArgsConstructor;
@@ -27,19 +29,19 @@ public class BotDiscordConfig {
     private String name;
 
     @Bean
-    public JDA beanJda() throws LoginException {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException(e);
-        }
+    public JDA beanJda() throws LoginException, InterruptedException, InvalidHandlerException {
+        Thread.sleep(5000);
 
         var jda = JDABuilder.createDefault(discordToken)
                             .addEventListeners(bot)
                             .setActivity(Activity.playing(name))
                             .build();
 
-        Pages.activate(jda);
+        Pages.activate(PaginatorBuilder
+                               .createPaginator()
+                               .setHandler(jda)
+                               .shouldRemoveOnReact(true)
+                               .build());
 
         return jda;
     }

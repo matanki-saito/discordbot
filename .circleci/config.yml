@@ -4,15 +4,12 @@
 #
 version: 2.1
 
-orbs:
-  aws-ecs: circleci/aws-ecs@0.0.8
-
 executors:
   default:
     working_directory: ~/repo
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:14.0.1-buster
+      - image: circleci/openjdk:15-alpine
         environment:
           # Customize the JVM maximum heap limit
           JVM_OPTS: -Xmx3200m
@@ -21,7 +18,7 @@ executors:
     working_directory: ~/repo
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:14.0.1-buster
+      - image: circleci/openjdk:15-alpine
         environment:
           # Customize the JVM maximum heap limit
           JVM_OPTS: -Xmx3200m
@@ -30,7 +27,7 @@ executors:
         environment:
           MYSQL_ROOT_PASSWORD: 1qaz2wsx
           MYSQL_DATABASE: testdb
-        command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_general_ci, --default-storage-engine=innodb]
+        command: [ --character-set-server=utf8mb4, --collation-server=utf8mb4_general_ci, --default-storage-engine=innodb ]
       - image: elasticsearch:7.6.2
         environment:
           cluster.name: ES
@@ -43,7 +40,7 @@ executors:
   deployer:
     working_directory: ~/repo
     docker:
-      - image: circleci/openjdk:14.0.1-buster
+      - image: circleci/openjdk:15-alpine
         environment:
           # Customize the JVM maximum heap limit
           JVM_OPTS: -Xmx3200m
@@ -52,7 +49,7 @@ executors:
         environment:
           MYSQL_ROOT_PASSWORD: 1qaz2wsx
           MYSQL_DATABASE: testdb
-        command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_general_ci, --default-storage-engine=innodb]
+        command: [ --character-set-server=utf8mb4, --collation-server=utf8mb4_general_ci, --default-storage-engine=innodb ]
       - image: elasticsearch:7.6.2
         environment:
           cluster.name: ES
@@ -63,7 +60,7 @@ executors:
           ES_JAVA_OPTS: "-Xms512m -Xmx512m"
           ELASTIC_PASSWORD: hogehoge
       - image: gnagaoka/schemaspyweb:latest
-        command: [-servermode]
+        command: [ -servermode ]
 
 commands:
   restore_gradle:
@@ -147,15 +144,3 @@ workflows:
             branches:
               only: master
 
-  restart_service:
-    jobs:
-      - aws-ecs/deploy-service-update:
-          family: 'henrietta-task'
-          cluster-name: 'girls'
-          service-name: 'henrietta-sv'
-          container-image-name-updates: 'container=henrietta-app,image-and-tag=registry.hub.docker.com/gnagaoka/henrietta-app:${CIRCLE_TAG}'
-          filters:
-            tags:
-              only: /[0-9]+\.[0-9]+\.[0-9]+/
-            branches:
-              ignore: /.*/

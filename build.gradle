@@ -1,29 +1,29 @@
 buildscript {
     ext.versions = [
             // Spring
-            'springBootVersion'                 : '2.3.1.RELEASE',
-            'springStateMachine'                : '2.2.0.RELEASE',
+            'springBootVersion'                 : '2.4.5',
+            'springStateMachine'                : '2.4.0',
 
             // redis client 実装
             // https://lettuce.io/
-            'lettuce'                           : '5.1.4.RELEASE',
+            'lettuce'                           : '6.1.1.RELEASE',
 
             // http client
             // https://square.github.io/okhttp/
-            'okhttp'                            : '3.11.0',
-            'retrofit'                          : '2.5.0',
+            'okhttp'                            : '4.9.1',
+            'retrofit'                          : '2.9.0',
 
             // discord client library
             // https://github.com/DV8FromTheWorld/JDA
-            'JDA'                               : '4.2.0_168',
+            'JDA'                               : '4.2.1_253',
 
             // discord pagination util
             // https://github.com/ygimenez/Pagination-Utils
-            'JDAUtils'                          : '1.2.2',
+            'JDAUtils'                          : '2.1.8',
 
             // apache common Lang
             // https://commons.apache.org/
-            'apacheCommonLang'                  : '3.10',
+            'apacheCommonLang'                  : '3.12.0',
 
             // log
             // http://www.slf4j.org/
@@ -39,10 +39,10 @@ buildscript {
 
             // 日付処理用
             // https://qiita.com/tag1216/items/25a64bba2bde98ea88d3
-            'jacksonDatatypeJsr310'             : '2.9.7',
+            'jacksonDatatypeJsr310'             : '2.12.3',
 
             // state machineをpoolするのに必要
-            'apacheCommonsPool'                 : '2.8.0',
+            'apacheCommonsPool'                 : '2.9.0',
 
             // githubのリリースを登録するのに必要
             // https://github.com/ajoberstar/gradle-git-publish
@@ -50,15 +50,15 @@ buildscript {
 
             // Dockerhubにdocker imageをuploadするのに必要
             // https://github.com/palantir/gradle-docker
-            'gradleDockerPlugin'                : "0.25.0",
+            'gradleDockerPlugin'                : "0.26.0",
 
             // schemaspyで作った結果をダウンロードするのに必要
             // https://github.com/michel-kraemer/gradle-download-task
-            'gradleDownloadTaskletPlugin'       : '4.0.4',
+            'gradleDownloadTaskletPlugin'       : '4.1.1',
 
             // actuator apiでコミットversionを確認する
             // https://plugins.gradle.org/plugin/com.gorylenko.gradle-git-properties
-            'gradleGitPropertiesGeneraterPlugin': '2.2.2',
+            'gradleGitPropertiesGeneraterPlugin': '2.3.1',
 
             // リリース処理に必要
             // https://github.com/researchgate/gradle-release
@@ -66,11 +66,11 @@ buildscript {
 
             // test用
             // https://assertj.github.io/doc/
-            'assertj'                           : '3.15.0',
+            'assertj'                           : '3.19.0',
 
             // lombok
-            //
-            'lombok'                            : '1.18.12'
+            // https://mvnrepository.com/artifact/org.projectlombok/lombok
+            'lombok'                            : '1.18.20'
     ]
 
     repositories {
@@ -87,7 +87,7 @@ buildscript {
         classpath("net.researchgate:gradle-release:${versions.gradleReleasePlugin}")
         classpath("de.undercouch:gradle-download-task:${versions.gradleDownloadTaskletPlugin}")
         classpath("org.ajoberstar:gradle-git-publish:${versions.gradleGitPublishPlugin}")
-        classpath("gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${versions.gradleGitPropertiesGeneraterPlugin}")
+        classpath("com.gorylenko.gradle-git-properties:gradle-git-properties:${versions.gradleGitPropertiesGeneraterPlugin}")
     }
 }
 
@@ -113,6 +113,10 @@ repositories {
     jcenter()
     maven {
         url 'https://jitpack.io'
+    }
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
     }
 }
 

@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class InputBasedBotState implements BotStateTemplate<BotStates, BotEvents, String> {
 
     private final Pattern pattern = Pattern.compile(
-            "^([a-zA-Z0-9\\-_]{1,4})::(([a-z0-9=]*)[\\n|\\r| |　]+(.*)?|R)");
+            "^([a-zA-Z0-9\\-_]{1,4})::(([a-z0-9=]*)[\\n|\\r| |　]+(.*)?|(R))");
 
     private BotCallCommand parseCallOutMeCommand(MessageReceivedEvent event) throws CommandErrorException {
         // botの投稿は無視する
@@ -44,6 +44,8 @@ public abstract class InputBasedBotState implements BotStateTemplate<BotStates, 
 
         if (m.group(3) != null) {
             result.setCommands(List.of(m.group(3).split("")));
+        } else if (m.group(5) != null) {
+            result.setCommands(List.of(m.group(5).split("")));
         } else {
             result.setCommands(List.of("n"));
         }

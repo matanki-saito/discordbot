@@ -74,22 +74,28 @@ public class BotIdleState extends InputBasedBotState {
     void otherInput(BotCallCommand botCallCommand, StateContext<BotStates, BotEvents> context) {
         final MessageReceivedEvent event = getMessageFromHeader(context, MessageReceivedEvent.class);
 
-        final EsResponseContainer<ParatranzEntry> result;
-
-        // 検索取得最大数
-        final int size = botCallCommand.getCommands().contains("g") ? 10 : 5;
+        // レポート
+        if (botCallCommand.getCommands().contains("R")) {
+            sendMessageService.sendReport(event.getChannel(),
+                                          elasticsearchService.aggReport(botCallCommand));
+            return;
+        }
 
         // 検索
-        result = botCallCommand.getCommands().contains("b")
-                 ? elasticsearchService.searchPartialMatch(botCallCommand, size)
-                 : elasticsearchService.searchTerm(botCallCommand, size);
+        // 検索取得最大数
+        final int size = botCallCommand.getCommands().contains("g") ? 10 : 5;
+        final EsResponseContainer<ParatranzEntry> result;
+        if (botCallCommand.getCommands().contains("b")) {
+            result = elasticsearchService.searchPartialMatch(botCallCommand, size);
+        } else {
+            result = elasticsearchService.searchTerm(botCallCommand, size);
+        }
 
         if (result.getData().isEmpty()) {
             sendMessageService.sendPlaneMessage(event.getChannel(), "見つかりませんでした");
             return;
         }
 
-        // メッセージ配信
         if (botCallCommand.getCommands().contains("g")) {
             sendMessageService.sendGrepMessage(event.getChannel(), result);
         } else {

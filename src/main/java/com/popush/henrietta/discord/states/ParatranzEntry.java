@@ -18,6 +18,8 @@ public class ParatranzEntry {
 
     private String original;
 
+    private String filePath;
+
     private String translation;
 
     private String context;

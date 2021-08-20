@@ -20,7 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class InputBasedBotState implements BotStateTemplate<BotStates, BotEvents, String> {
 
-    private final Pattern pattern = Pattern.compile("^([a-zA-Z0-9\\-_]{1,4})::([a-z0-9=]*)[\\n|\\r| |　]+(.*)?");
+    private final Pattern pattern = Pattern.compile(
+            "^([a-zA-Z0-9\\-_]{1,4})::(([a-z0-9=]*)[\\n|\\r| |　]+(.*)?|R)");
 
     private BotCallCommand parseCallOutMeCommand(MessageReceivedEvent event) throws CommandErrorException {
         // botの投稿は無視する
@@ -41,15 +42,15 @@ public abstract class InputBasedBotState implements BotStateTemplate<BotStates, 
         var result = new BotCallCommand();
         result.setIndex(m.group(1).toLowerCase());
 
-        if (m.group(2) != null) {
-            result.setCommands(List.of(m.group(2).split("")));
+        if (m.group(3) != null) {
+            result.setCommands(List.of(m.group(3).split("")));
         } else {
             result.setCommands(List.of("n"));
         }
 
         // 検索ワード
-        if (m.group(3) != null) {
-            result.setSearchWords(List.of(m.group(3).split("[ |　]")));
+        if (m.group(4) != null) {
+            result.setSearchWords(List.of(m.group(4).split("[ |　]")));
         }
 
         return result;

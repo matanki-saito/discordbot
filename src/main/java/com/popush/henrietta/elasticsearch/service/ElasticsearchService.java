@@ -13,11 +13,15 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.range.Range;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.popush.henrietta.discord.model.BotCallCommand;
+import com.popush.henrietta.discord.states.ParatranzAggregationReport;
 import com.popush.henrietta.discord.states.ParatranzEntry;
 import com.popush.henrietta.elasticsearch.model.EsResponseContainer;
 import com.popush.henrietta.elasticsearch.model.EsResponseWithData;
@@ -31,6 +35,72 @@ import lombok.extern.slf4j.Slf4j;
 public class ElasticsearchService {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;
+
+    public EsResponseContainer<ParatranzAggregationReport> aggReport(@Nonnull BotCallCommand botCallCommand) {
+        var boolQuery = QueryBuilders.boolQuery();
+
+        var aggBuilders = AggregationBuilders
+                .terms("game")
+                .field("pz_pj_code")
+                .size(20)
+                .subAggregation(AggregationBuilders.range("size_original")
+                                                   .field("size_original")
+                                                   .addRange(0.0, 5.0)
+                                                   .addRange(5.0, 10.0)
+                                                   .addRange(10.0, 50.0)
+                                                   .addRange(50.0, 200.0)
+                                                   .addRange(200.0, 10000.0)
+                                                   .subAggregation(AggregationBuilders.range("size_translation")
+                                                                                      .field("size_translation")
+                                                                                      .addRange(0.0, 1)
+                                                                                      .addRange(1.0, 10000.0)));
+
+        SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource().size(0);
+        searchBuilder.aggregation(aggBuilders);
+        SearchRequest request = new SearchRequest(botCallCommand.getIndex()).source(searchBuilder);
+
+        List<EsResponseWithData<ParatranzAggregationReport>> results = new ArrayList<>();
+
+        try {
+            SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+            Terms game = response.getAggregations().get("game");
+            for (Terms.Bucket gameBucket : game.getBuckets()) {
+                var gameId = gameBucket.getKeyAsString();
+                var reportBuilder = ParatranzAggregationReport.builder();
+
+                Range sizeOriginal = gameBucket.getAggregations().get("size_original");
+                for (Range.Bucket sizeOriginalBucket : sizeOriginal.getBuckets()) {
+                    var itemBuilder = ParatranzAggregationReport.PercentItem.builder();
+
+                    itemBuilder.lengthBegin(((Double)sizeOriginalBucket.getFrom()).longValue());
+                    itemBuilder.lengthEnd(((Double)sizeOriginalBucket.getTo()).longValue());
+                    itemBuilder.allCount(sizeOriginalBucket.getDocCount());
+
+                    Range sizeTranslation = sizeOriginalBucket.getAggregations().get("size_translation");
+                    var a = sizeTranslation.getBuckets().get(0);
+                    var b = sizeTranslation.getBuckets().get(1);
+                    itemBuilder.translatedItemCount(b.getDocCount());
+                    itemBuilder.translatedItemPercent(
+                            (double) b.getDocCount() / (a.getDocCount() + b.getDocCount()));
+
+                    reportBuilder.percentItem(itemBuilder.build());
+                }
+
+                results.add(new EsResponseWithData<>(
+                        gameId,
+                        reportBuilder.build()
+                ));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException();
+        }
+
+        return EsResponseContainer.<ParatranzAggregationReport>builder()
+                                  .findCount(1L)
+                                  .callCommand(botCallCommand)
+                                  .data(results)
+                                  .build();
+    }
 
     public EsResponseContainer<ParatranzEntry> searchTerm(@Nonnull BotCallCommand botCallCommand,
                                                           int size) {
@@ -111,10 +181,10 @@ public class ElasticsearchService {
                 results.add(data);
             }
             return EsResponseContainer.<ParatranzEntry>builder()
-                    .findCount(response.getHits().getTotalHits().value)
-                    .callCommand(botCallCommand)
-                    .data(results)
-                    .build();
+                                      .findCount(response.getHits().getTotalHits().value)
+                                      .callCommand(botCallCommand)
+                                      .data(results)
+                                      .build();
         } catch (IOException e) {
             throw new IllegalStateException();
         }

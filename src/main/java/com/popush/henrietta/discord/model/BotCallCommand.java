@@ -16,8 +16,5 @@ public class BotCallCommand {
 
     private String index;
 
-    @Deprecated
-    private String command;
-
     private List<String> commands;
 }

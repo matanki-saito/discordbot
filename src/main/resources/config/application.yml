@@ -1,3 +1,11 @@
+server:
+  port: 80
+  servlet:
+    context-path: /
+  ssl:
+    enabled:
+      false
+
 spring:
   profiles:
     active: dev
@@ -11,4 +19,7 @@ management:
   info:
     git:
       mode: full
-
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"

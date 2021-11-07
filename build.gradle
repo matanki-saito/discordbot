@@ -70,7 +70,11 @@ buildscript {
 
             // lombok
             // https://mvnrepository.com/artifact/org.projectlombok/lombok
-            'lombok'                            : '1.18.20'
+            'lombok'                            : '1.18.20',
+
+            // micrometer
+            // spring actuatorがprometheus形式でmetrixを出力するために必要
+            'micrometer'                        : '1.7.5'
     ]
 
     repositories {
@@ -196,6 +200,7 @@ release {
 
 dependencies {
     // spring boot
+    implementation("org.springframework.boot:spring-boot-starter-web:${versions.springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-aop:${versions.springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-cache:${versions.springBootVersion}")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:${versions.springBootVersion}")
@@ -208,6 +213,7 @@ dependencies {
     implementation("org.springframework.statemachine:spring-statemachine-data-redis:${versions.springStateMachine}")
 
     // other
+    implementation("io.micrometer:micrometer-registry-prometheus:${versions.micrometer}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jacksonDatatypeJsr310}")
     implementation("org.apache.commons:commons-pool2:${versions.apacheCommonsPool}")
     implementation("org.apache.commons:commons-lang3:${versions.apacheCommonLang}")

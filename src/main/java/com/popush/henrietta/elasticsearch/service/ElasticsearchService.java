@@ -72,8 +72,8 @@ public class ElasticsearchService {
                 for (Range.Bucket sizeOriginalBucket : sizeOriginal.getBuckets()) {
                     var itemBuilder = ParatranzAggregationReport.PercentItem.builder();
 
-                    itemBuilder.lengthBegin(((Double)sizeOriginalBucket.getFrom()).longValue());
-                    itemBuilder.lengthEnd(((Double)sizeOriginalBucket.getTo()).longValue());
+                    itemBuilder.lengthBegin(((Double) sizeOriginalBucket.getFrom()).longValue());
+                    itemBuilder.lengthEnd(((Double) sizeOriginalBucket.getTo()).longValue());
                     itemBuilder.allCount(sizeOriginalBucket.getDocCount());
 
                     Range sizeTranslation = sizeOriginalBucket.getAggregations().get("size_translation");
@@ -168,6 +168,8 @@ public class ElasticsearchService {
         SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource().size(size);
         searchBuilder.query(boolQuery);
         SearchRequest request = new SearchRequest(botCallCommand.getIndex()).source(searchBuilder);
+
+        log.info("search");
 
         try {
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);

@@ -3,8 +3,10 @@ package com.popush.henrietta.discord.states;
 import static com.popush.henrietta.discord.StateMachineUtility.getMessageFromHeader;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.slf4j.MDC;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 
@@ -60,6 +62,8 @@ public abstract class InputBasedBotState implements BotStateTemplate<BotStates, 
 
     public Action<BotStates, BotEvents> inputAction() {
         return context -> {
+            MDC.put("X-Track", UUID.randomUUID().toString());
+
             MessageReceivedEvent event = getMessageFromHeader(context, MessageReceivedEvent.class);
             String messageText = event.getMessage().getContentRaw();
 
@@ -69,6 +73,8 @@ public abstract class InputBasedBotState implements BotStateTemplate<BotStates, 
             } catch (CommandErrorException e) {
                 log.debug("command error");
             }
+
+            MDC.clear();
         };
     }
 

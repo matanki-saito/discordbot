@@ -76,6 +76,7 @@ public class BotIdleState extends InputBasedBotState {
 
         // レポート
         if (botCallCommand.getCommands().contains("R")) {
+            log.info("report");
             sendMessageService.sendReport(event.getChannel(),
                                           elasticsearchService.aggReport(botCallCommand));
             return;

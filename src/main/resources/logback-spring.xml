@@ -16,7 +16,8 @@
     <!-- encoders are  by default assigned the type
          ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %logger{36} - %msg%n</pattern>
+      <pattern>
+        <![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
     </encoder>
   </appender>
 
@@ -26,7 +27,8 @@
         ${LOGBACK_DISCORD_WEBHOOK}
       </webhookUri>
       <layout class="ch.qos.logback.classic.PatternLayout">
-        <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```%ex{full}```</pattern>
+        <pattern>
+          <![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
       </layout>
       <!-- Fill in username and avatarUrl with your desired values -->
       <username>Error Notify(henrietta)</username>

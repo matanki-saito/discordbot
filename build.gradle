@@ -15,7 +15,7 @@ buildscript {
 
             // discord client library
             // https://github.com/DV8FromTheWorld/JDA
-            'JDA'                               : '4.3.0',
+            'JDA'                               : '4.3.0_277',
 
             // discord pagination util
             // https://github.com/ygimenez/Pagination-Utils

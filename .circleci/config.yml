@@ -137,7 +137,7 @@ jobs:
           -d '{"ref":"main", "inputs": { \
            "source":"ente-pubblico-per-il-benessere-sociale/henrietta/deployment.yaml", \
            "target":"spec.template.spec.containers.0.image", \
-           "value":"gnagaoka/henrietta-app:${CIRCLE_TAG}"}}
+           "value":"gnagaoka/henrietta-app:${CIRCLE_TAG}"}}'
 
 workflows:
   build_and_docker_deploy:

@@ -19,7 +19,7 @@ buildscript {
 
             // discord pagination util
             // https://github.com/ygimenez/Pagination-Utils
-            'JDAUtils'                          : '2.1.8',
+            'JDAUtils'                          : '3.0.4',
 
             // apache common Lang
             // https://commons.apache.org/

@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
-import com.github.ygimenez.type.PageType;
 import com.popush.henrietta.discord.states.ParatranzAggregationReport;
 import com.popush.henrietta.discord.states.ParatranzEntry;
 import com.popush.henrietta.elasticsearch.model.EsResponseContainer;
@@ -66,7 +65,7 @@ public class SendMessageService {
                                                     1000),
                              false);
 
-            pages.add(new Page(PageType.EMBED, builder.build()));
+            pages.add(new Page(builder.build()));
         }
 
         channel.sendMessage((MessageEmbed) pages.get(0).getContent()).queue(success -> {
@@ -128,7 +127,7 @@ public class SendMessageService {
                                                                          item.getAllCount()),
                                  false);
             }
-            pages.add(new Page(PageType.EMBED, builder.build()));
+            pages.add(new Page(builder.build()));
         }
 
         if (pages.size() == 1) {

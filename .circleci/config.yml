@@ -134,7 +134,7 @@ jobs:
           -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization: token ${PERSONAL_ACCESS_TOKEN}" \
           https://api.github.com/repos/matanki-saito/localservers/actions/workflows/update.yaml/dispatches \
-          -d '{"ref":"main", "inputs": { "source":"ente-pubblico-per-il-benessere-sociale/henrietta/deployment.yaml", "target":"spec.template.spec.containers.0.image", "value":"gnagaoka/henrietta-app:${CIRCLE_TAG}"}}'
+          -d "{\"ref\":\"main\", \"inputs\": { \"source\":\"ente-pubblico-per-il-benessere-sociale/henrietta/deployment.yaml\", \"target\":\"spec.template.spec.containers.0.image\", \"value\":\"gnagaoka/henrietta-app:${CIRCLE_TAG}\"}}"
 
 workflows:
   build_and_docker_deploy:

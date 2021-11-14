@@ -1,7 +1,7 @@
 buildscript {
     ext.versions = [
             // Spring
-            'springBootVersion'                 : '2.4.5',
+            'springBootVersion'                 : '2.5.6',
             'springStateMachine'                : '2.4.0',
 
             // redis client 実装
@@ -15,11 +15,11 @@ buildscript {
 
             // discord client library
             // https://github.com/DV8FromTheWorld/JDA
-            'JDA'                               : '4.2.1_253',
+            'JDA'                               : '4.3.0_277',
 
             // discord pagination util
             // https://github.com/ygimenez/Pagination-Utils
-            'JDAUtils'                          : '2.1.8',
+            'JDAUtils'                          : '2.3.0',
 
             // apache common Lang
             // https://commons.apache.org/

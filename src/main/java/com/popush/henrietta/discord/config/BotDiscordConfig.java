@@ -10,14 +10,14 @@ import net.dv8tion.jda.api.entities.Activity;
 
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.PaginatorBuilder;
-import com.popush.henrietta.discord.Bot;
+import com.popush.henrietta.discord.BotListener;
 
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
 public class BotDiscordConfig {
-    private final Bot bot;
+    private final BotListener bot;
 
     @Value("${discord.token}")
     private String discordToken;
@@ -44,6 +44,8 @@ public class BotDiscordConfig {
                 return jda;
 
             } catch (Exception e) {
+                // DNSの問題かIPv6の問題かmicrok8sの問題か分からないが、コンテナ起動時にネットワークが切れていることがある。
+                // このように接続する施行を入れないとbeanができなくて繋がらないまま起動し続けてしまう。
                 Thread.sleep(5000);
             }
         }

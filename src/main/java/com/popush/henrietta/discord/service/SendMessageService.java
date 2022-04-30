@@ -68,8 +68,10 @@ public class SendMessageService {
             pages.add(new Page(builder.build()));
         }
 
-        channel.sendMessage((MessageEmbed) pages.get(0).getContent()).queue(success -> {
-            Pages.paginate(success, pages, 60, TimeUnit.SECONDS);
+        channel.sendMessageEmbeds((MessageEmbed) pages.get(0).getContent()).queue(success -> {
+            Pages.paginate(success, pages,
+                           false, 60,
+                           TimeUnit.SECONDS);
         }, res -> log.error(res.getMessage()));
     }
 
@@ -111,31 +113,4 @@ public class SendMessageService {
         channel.sendMessage(String.join("\n", result)).queue();
     }
 
-    public void sendReport(MessageChannel channel,
-                           EsResponseContainer<ParatranzAggregationReport> container) {
-        final ArrayList<Page> pages = new ArrayList<>();
-
-        for (var idx = 0; idx < container.getData().size(); idx++) {
-            final EmbedBuilder builder = new EmbedBuilder();
-            var withData = container.getData().get(idx);
-            var data = withData.getData();
-
-            for (var item : data.getPercentItems()) {
-                builder.addField("%d文字 ~ %d文字".formatted(item.getLengthBegin(), item.getLengthEnd()),
-                                 "完了率：%.2f%%(翻訳済み：%d個/全体：%d個)".formatted(item.getTranslatedItemPercent() * 100,
-                                                                         item.getTranslatedItemCount(),
-                                                                         item.getAllCount()),
-                                 false);
-            }
-            pages.add(new Page(builder.build()));
-        }
-
-        if (pages.size() == 1) {
-            channel.sendMessage((MessageEmbed) pages.get(0).getContent()).queue();
-        } else {
-            channel.sendMessage((MessageEmbed) pages.get(0).getContent()).queue(success -> {
-                Pages.paginate(success, pages, 60, TimeUnit.SECONDS);
-            }, res -> log.error(res.getMessage()));
-        }
-    }
 }

@@ -1,47 +1,35 @@
 package com.popush.henrietta.discord.project.discussion.option;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import com.popush.henrietta.discord.exception.CommandErrorException;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@AllArgsConstructor
-@Builder(toBuilder = true)
+@Scope("prototype")
 public class GrpcOption implements DiscussionOption {
 
     protected List<String> arguments;
     protected MessageReceivedEvent context;
 
     @Override
-    public boolean matchOption(String optionText) {
-        return optionText.contains("g");
-    }
+    public boolean parseRequest(String request, MessageReceivedEvent context) {
+        var requests = List.of(request.split( " "));
 
-    @Override
-    public DiscussionOption makeClone(List<String> arguments, MessageReceivedEvent context) {
-        return this.toBuilder()
-                   .arguments(arguments)
-                   .context(context)
-                   .build();
-    }
+        if(!requests.get(0).toLowerCase(Locale.ROOT).equals("g")){
+            return false;
+        }
 
-    @Override
-    public void parseArguments() throws CommandErrorException {
-        //
+        this.context = context;
+        return true;
     }
 
     @Override

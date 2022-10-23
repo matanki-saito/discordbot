@@ -1,50 +1,48 @@
 package com.popush.henrietta.discord.project.discussion.option;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import com.popush.discussions.DiscussionGrpc;
 import com.popush.discussions.DiscussionOuterClass.CreateDiscussionRequest;
-import com.popush.henrietta.discord.exception.CommandErrorException;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@AllArgsConstructor
-@Builder(toBuilder = true)
+@Component
+@Scope("prototype")
 public class CreateDiscussionThreadOption implements DiscussionOption {
 
     private List<String> arguments;
-    private MessageReceivedEvent context;
+    private Long guildId;
 
     @Override
-    public boolean matchOption(String optionText) {
-        return optionText.contains("d");
-    }
+    public boolean parseRequest(String request, MessageReceivedEvent context) {
+        var requests = List.of(request.split(" "));
 
-    @Override
-    public DiscussionOption makeClone(List<String> arguments, MessageReceivedEvent context) {
-        return this.toBuilder()
-                   .arguments(arguments)
-                   .context(context)
-                   .build();
-    }
+        if (!requests.get(0).toLowerCase(Locale.ROOT).equals("d")) {
+            return false;
+        }
 
-    @Override
-    public void parseArguments() throws CommandErrorException {
-        //
+        if (requests.size() < 3) {
+            return false;
+        }
+
+        context.getChannel().getJDA();
+        var channelId = context.getChannel().getIdLong();
+        var guildChannel = context.getJDA().getGuildChannelById(channelId);
+        var guild = Optional.ofNullable(guildChannel).orElseThrow().getGuild();
+        guildId = guild.getIdLong();
+
+        return true;
     }
 
     @Override
@@ -57,17 +55,12 @@ public class CreateDiscussionThreadOption implements DiscussionOption {
 
         var stub = DiscussionGrpc.newBlockingStub(channel);
 
-        var jda = context.getChannel().getJDA();
-        var channelId = context.getChannel().getIdLong();
-        var guildChannel = jda.getGuildChannelById(channelId);
-        var guild = Optional.ofNullable(guildChannel).orElseThrow().getGuild();
-
         var request = CreateDiscussionRequest
                 .newBuilder()
-                .setGame("eu4")
-                .setMod("jpmod")
-                .setCandidates("test1,test2,test3")
-                .setDiscordGuildId(guild.getIdLong())
+                .setGame(arguments.get(0))
+                .setMod(arguments.get(1))
+                .setCandidates(arguments.get(2))
+                .setDiscordGuildId(guildId)
                 .build();
 
         var reply = stub.createDiscussion(request);

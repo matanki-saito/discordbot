@@ -1,5 +1,6 @@
 package com.popush.henrietta.discord;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -10,8 +11,7 @@ import org.springframework.stereotype.Component;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import com.popush.henrietta.discord.exception.CommandErrorException;
-import com.popush.henrietta.discord.service.BotCommandService;
+import com.popush.henrietta.discord.project.Project;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,28 +20,28 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class BotListener extends ListenerAdapter {
-
-    private final BotCommandService botCommandService;
+    private final List<Project> projects;
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         MDC.put("X-Track", UUID.randomUUID().toString());
 
-        var project = botCommandService.prepareProject(event);
-
-        if (project.isEmpty()) {
+        // botの投稿は無視する
+        if (event.getAuthor().isBot()) {
             return;
         }
 
-        var contents = project.get();
+        var optionalProject = projects
+                .stream()
+                .filter(x -> x.parseRequest(event.getMessage().getContentRaw(),
+                                            event))
+                .findAny();
 
-        try {
-            contents.parseRequest();
-        } catch (CommandErrorException e) {
-            throw new RuntimeException(e);
+        if (optionalProject.isEmpty()) {
+            return;
         }
 
-        contents.execute();
+        optionalProject.get().execute();
 
         MDC.clear();
     }

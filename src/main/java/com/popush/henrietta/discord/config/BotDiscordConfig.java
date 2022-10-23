@@ -1,5 +1,6 @@
 package com.popush.henrietta.discord.config;
 
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +31,8 @@ public class BotDiscordConfig {
         for (var i = 0; i < 20; i++) {
             try {
                 var jda = JDABuilder.createDefault(discordToken)
-                                    .addEventListeners(bot)
+                        .enableIntents(GatewayIntent.DIRECT_MESSAGES)
+                        .addEventListeners(bot)
                                     .setActivity(Activity.playing(name))
                                     .build();
 

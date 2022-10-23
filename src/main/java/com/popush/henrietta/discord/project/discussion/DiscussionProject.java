@@ -1,26 +1,23 @@
 package com.popush.henrietta.discord.project.discussion;
 
 import java.util.List;
+import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import com.popush.henrietta.discord.exception.CommandErrorException;
 import com.popush.henrietta.discord.project.Project;
 import com.popush.henrietta.discord.project.discussion.option.DiscussionOption;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@AllArgsConstructor
-@Builder(toBuilder = true)
+@RequiredArgsConstructor
+@Scope("prototype")
 public class DiscussionProject implements Project {
 
     private final List<DiscussionOption> options;
@@ -31,34 +28,22 @@ public class DiscussionProject implements Project {
     private DiscussionOption option;
 
     @Override
-    public String getProjectName() {
-        return "dis";
-    }
+    public boolean parseRequest(String request, MessageReceivedEvent context) {
+        var target = request.toLowerCase(Locale.ROOT);
 
-    @Override
-    public Project makeClone(String request, MessageReceivedEvent context) {
-        return this.toBuilder()
-                   .request(request)
-                   .context(context)
-                   .build();
-    }
-
-    @Override
-    public void parseRequest() throws CommandErrorException {
-        // Options arg1 arg2 ...
-        var texts = List.of(request.split(" "));
-
-        if (texts.size() < 2) {
-            throw new CommandErrorException();
+        if (!target.startsWith("dis::")) {
+            return false;
         }
 
-        var result = options.stream().filter(x -> x.matchOption(texts.get(0))).findAny();
+        var optionRequest = target.subSequence(5,target.length()).toString();
 
-        if (result.isEmpty()) {
-            throw new CommandErrorException();
-        }
+        this.option = options
+                .stream()
+                .filter(x -> x.parseRequest(optionRequest, context))
+                .findAny()
+                .orElseThrow();
 
-        this.option = result.get().makeClone(texts.subList(1, texts.size()), context);
+        return true;
     }
 
     @Override

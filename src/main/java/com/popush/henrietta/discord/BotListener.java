@@ -44,10 +44,8 @@ public class BotListener extends ListenerAdapter {
         MDC.put("X-Track", UUID.randomUUID().toString());
 
         // webhookでタイトルが特殊なものはスレッドを作る
-        if(event.isWebhookMessage()){
-            var message = event.getMessage()
-                    .getEmbeds()
-                    .get(0);
+        if(event.isWebhookMessage() && event.getMessage().getEmbeds().size() > 0){
+            var message = event.getMessage().getEmbeds().get(0);
 
             var messageJumpUrl = event.getMessage().getJumpUrl();
 

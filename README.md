@@ -35,16 +35,33 @@ Eu4::gb 巫女　沖縄
 See [paratranz2es](https://github.com/matanki-saito/paratranz2es) README.Lowercase and uppercase letters are
 ignored.
 
-#### Options
+#### Search Options
+| Code   | Description |
+|--------|------------|
+| a      |  words AND |
+| (none) |  words OR  |
 
+#### Match Options
 | Code | Description |
 | ---- | ---- |
 | g | list mode |
 | b | Partial Match |
-| n | Phrase Match(default) |
+
+#### Source Options
+
+| Code | Description |
+| ---- | ---- |
 | t | Search source is translated text |
 | k | Search source is key  |
 | o | Search source is original text |
+
+#### output Options
+
+| Code   | Description   |
+|--------|---------------|
+| g      | List          |
+| r      | Aggregation   |
+| (none) | search        |
 
 #### Search-word
 

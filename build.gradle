@@ -1,112 +1,90 @@
 buildscript {
     ext.versions = [
-            // Spring
-            'springBootVersion'                 : '2.5.6',
-            'springStateMachine'                : '2.4.0',
-
             // redis client 実装
             // https://lettuce.io/
-            'lettuce'                           : '6.1.1.RELEASE',
+            'lettuce'              : '6.1.8.RELEASE',
 
             // http client
             // https://square.github.io/okhttp/
-            'okhttp'                            : '4.9.1',
-            'retrofit'                          : '2.9.0',
+            'okhttp'               : '4.9.3',
+            'retrofit'             : '2.9.0',
 
             // discord client library
             // https://github.com/DV8FromTheWorld/JDA
-            'JDA'                               : '4.3.0_277',
+            'JDA'                  : '5.0.0-alpha.21',
 
             // discord pagination util
             // https://github.com/ygimenez/Pagination-Utils
-            'JDAUtils'                          : '2.3.0',
+            'JDAUtils'             : '3.0.8',
 
             // apache common Lang
             // https://commons.apache.org/
-            'apacheCommonLang'                  : '3.12.0',
+            'apacheCommonLang'     : '3.12.0',
 
             // log
             // http://www.slf4j.org/
-            'slf4jApi'                          : '1.7.30',
+            'slf4jApi'             : '1.7.36',
 
             // elastic search（テキスト検索）
             // https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/index.html
-            'elasticsearch'                     : '7.6.2',
+            'elasticsearch'        : '7.17.3',
 
             // エラーDiscord通知
             // https://github.com/napstr/logback-discord-appender
-            'logbackDiscord'                    : '1.0.0',
+            'logbackDiscord'       : '1.0.0',
 
             // 日付処理用
             // https://qiita.com/tag1216/items/25a64bba2bde98ea88d3
-            'jacksonDatatypeJsr310'             : '2.12.3',
-
-            // state machineをpoolするのに必要
-            'apacheCommonsPool'                 : '2.9.0',
-
-            // githubのリリースを登録するのに必要
-            // https://github.com/ajoberstar/gradle-git-publish
-            'gradleGitPublishPlugin'            : "2.1.3",
-
-            // Dockerhubにdocker imageをuploadするのに必要
-            // https://github.com/palantir/gradle-docker
-            'gradleDockerPlugin'                : "0.26.0",
-
-            // schemaspyで作った結果をダウンロードするのに必要
-            // https://github.com/michel-kraemer/gradle-download-task
-            'gradleDownloadTaskletPlugin'       : '4.1.1',
-
-            // actuator apiでコミットversionを確認する
-            // https://plugins.gradle.org/plugin/com.gorylenko.gradle-git-properties
-            'gradleGitPropertiesGeneraterPlugin': '2.3.1',
-
-            // リリース処理に必要
-            // https://github.com/researchgate/gradle-release
-            'gradleReleasePlugin'               : '2.6.0',
+            'jacksonDatatypeJsr310': '2.13.2',
 
             // test用
             // https://assertj.github.io/doc/
-            'assertj'                           : '3.19.0',
+            'assertj'              : '3.22.0',
 
             // lombok
             // https://mvnrepository.com/artifact/org.projectlombok/lombok
-            'lombok'                            : '1.18.20',
+            'lombok'               : '1.18.24',
 
             // micrometer
             // spring actuatorがprometheus形式でmetrixを出力するために必要
-            'micrometer'                        : '1.7.5'
-    ]
+            'micrometer'           : '1.8.5',
 
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-        jcenter()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${versions.springBootVersion}")
-        classpath("com.palantir.gradle.docker:gradle-docker:${versions.gradleDockerPlugin}")
-        classpath("io.spring.gradle:dependency-management-plugin:${versions.gradleDependencyManagementPlugin}")
-        classpath("net.researchgate:gradle-release:${versions.gradleReleasePlugin}")
-        classpath("de.undercouch:gradle-download-task:${versions.gradleDownloadTaskletPlugin}")
-        classpath("org.ajoberstar:gradle-git-publish:${versions.gradleGitPublishPlugin}")
-        classpath("com.gorylenko.gradle-git-properties:gradle-git-properties:${versions.gradleGitPropertiesGeneraterPlugin}")
-    }
+            // grpc用。サービス間通信で使う
+            // https://github.com/LogNet/grpc-spring-boot-starter
+            // https://grpc.io/
+            // https://github.com/grpc/grpc-java
+            'grpcSpringStarter'    : '4.7.0',
+            'grpc'                 : '3.20.1',
+            'grpcGenJava'          : '1.45.1'
+    ]
 }
 
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'com.palantir.docker'
-apply plugin: 'net.researchgate.release'
-apply plugin: 'de.undercouch.download'
-apply plugin: 'org.ajoberstar.git-publish'
-apply plugin: 'com.gorylenko.gradle-git-properties'
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.6.6'
+    id 'io.spring.dependency-management' version "1.0.11.RELEASE"
+    // Dockerhubにdocker imageをuploadするのに必要
+    // https://github.com/palantir/gradle-docker
+    id 'com.palantir.docker' version "0.33.0"
+    // リリース処理に必要
+    // https://github.com/researchgate/gradle-release
+    id 'net.researchgate.release' version "2.8.1"
+    // schemaspyで作った結果をダウンロードするのに必要
+    // https://github.com/michel-kraemer/gradle-download-task
+    id "de.undercouch.download" version "5.0.5"
+    // actuator apiでコミットversionを確認する
+    // https://plugins.gradle.org/plugin/com.gorylenko.gradle-git-properties
+    id "com.gorylenko.gradle-git-properties" version "2.4.0"
+    // githubのリリースを登録するのに必要
+    // https://github.com/ajoberstar/gradle-git-publish
+    id 'org.ajoberstar.git-publish' version '4.1.0'
+    // intellijでprotoをコンパイルするのに必要
+    id "com.google.protobuf" version "0.8.18"
+}
 
 group = 'com.popush'
-sourceCompatibility = 15
-targetCompatibility = 15
+sourceCompatibility = 17
+targetCompatibility = 17
 
 gitProperties {
     customProperty 'version', version
@@ -114,7 +92,6 @@ gitProperties {
 
 repositories {
     mavenCentral()
-    jcenter()
     maven {
         url 'https://jitpack.io'
     }
@@ -125,8 +102,8 @@ repositories {
 }
 
 bootJar {
-    baseName = 'henrietta-docker'
-    version = '1.0.0'
+    archiveBaseName = 'henrietta-docker'
+    archiveVersion = '1.0.0'
 }
 
 // コメントに日本語があるので必要
@@ -200,22 +177,16 @@ release {
 
 dependencies {
     // spring boot
-    implementation("org.springframework.boot:spring-boot-starter-web:${versions.springBootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-aop:${versions.springBootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-cache:${versions.springBootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis:${versions.springBootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-validation:${versions.springBootVersion}")
-    implementation("org.springframework.boot:spring-boot-starter-actuator:${versions.springBootVersion}")
-
-    // spring
-    implementation("org.springframework.statemachine:spring-statemachine-autoconfigure:${versions.springStateMachine}")
-    implementation("org.springframework.statemachine:spring-statemachine-data-common:${versions.springStateMachine}")
-    implementation("org.springframework.statemachine:spring-statemachine-data-redis:${versions.springStateMachine}")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // other
     implementation("io.micrometer:micrometer-registry-prometheus:${versions.micrometer}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jacksonDatatypeJsr310}")
-    implementation("org.apache.commons:commons-pool2:${versions.apacheCommonsPool}")
     implementation("org.apache.commons:commons-lang3:${versions.apacheCommonLang}")
     implementation("io.lettuce:lettuce-core:${versions.lettuce}")
     implementation("com.squareup.okhttp3:okhttp:${versions.okhttp}")
@@ -225,7 +196,9 @@ dependencies {
     implementation("org.slf4j:slf4j-api:${versions.slf4jApi}")
     implementation("com.github.napstr:logback-discord-appender:${versions.logbackDiscord}")
     implementation("net.dv8tion:JDA:${versions.JDA}")
-    implementation("com.github.ygimenez:Pagination-Utils:${versions.JDAUtils}")
+    //implementation("com.github.ygimenez:Pagination-Utils:${versions.JDAUtils}")
+    // 上記からForkされた物。JDA5.x.xに追従している
+    implementation 'com.github.Black0nion:Pagination-Utils:3.3.0'
     implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:${versions.elasticsearch}")
     // elasticsearch-rest-clientはhigh-level-clientに必要
     // https://medium.com/@hsiehjenhsuan/%E8%A7%A3%E6%B1%BA-elasticsearch-%E4%BD%BF%E7%94%A8-java-high-level-rest-client-%E6%99%82%E5%87%BA%E7%8F%BE-noclassdeffounderror-%E9%8C%AF%E8%AA%A4-10077fcda6b3
@@ -233,9 +206,12 @@ dependencies {
     implementation("org.elasticsearch:elasticsearch:${versions.elasticsearch}")
     implementation("org.elasticsearch.client:elasticsearch-rest-client:${versions.elasticsearch}")
 
-    // ステートマシンが動かないので削除
-    // https://github.com/spring-projects/spring-statemachine/issues/622
-    //runtimeOnly('org.springframework.boot:spring-boot-devtools')
+    // githubを操作するために導入
+    // https://mvnrepository.com/artifact/org.kohsuke/github-api
+    implementation group: 'org.kohsuke', name: 'github-api', version: '1.313'
+
+    // grpc
+    implementation("io.github.lognet:grpc-spring-boot-starter:${versions.grpcSpringStarter}")
 
     compileOnly("org.projectlombok:lombok:${versions.lombok}")
     // lombokにはcompileOnly,annotationProcessor,testImplementationが必要
@@ -248,4 +224,31 @@ dependencies {
     testImplementation("org.projectlombok:lombok:${versions.lombok}")
     testImplementation("com.squareup.okhttp3:mockwebserver:${versions.okhttp}")
     testImplementation("org.assertj:assertj-core:${versions.assertj}")
+
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${versions.grpc}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${versions.grpcGenJava}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+// for IDEA
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
 }

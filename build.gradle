@@ -11,7 +11,7 @@ buildscript {
 
             // discord client library
             // https://github.com/DV8FromTheWorld/JDA
-            'JDA'                  : '4.4.0_350',
+            'JDA'                  : '5.0.0-alpha.21',
 
             // discord pagination util
             // https://github.com/ygimenez/Pagination-Utils
@@ -196,13 +196,19 @@ dependencies {
     implementation("org.slf4j:slf4j-api:${versions.slf4jApi}")
     implementation("com.github.napstr:logback-discord-appender:${versions.logbackDiscord}")
     implementation("net.dv8tion:JDA:${versions.JDA}")
-    implementation("com.github.ygimenez:Pagination-Utils:${versions.JDAUtils}")
+    //implementation("com.github.ygimenez:Pagination-Utils:${versions.JDAUtils}")
+    // 上記からForkされた物。JDA5.x.xに追従している
+    implementation 'com.github.Black0nion:Pagination-Utils:3.3.0'
     implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:${versions.elasticsearch}")
     // elasticsearch-rest-clientはhigh-level-clientに必要
     // https://medium.com/@hsiehjenhsuan/%E8%A7%A3%E6%B1%BA-elasticsearch-%E4%BD%BF%E7%94%A8-java-high-level-rest-client-%E6%99%82%E5%87%BA%E7%8F%BE-noclassdeffounderror-%E9%8C%AF%E8%AA%A4-10077fcda6b3
     // runtimeOnlyに移しても一見動作するが、bulk insertするとIncompatibleClassChangeErrorが出る
     implementation("org.elasticsearch:elasticsearch:${versions.elasticsearch}")
     implementation("org.elasticsearch.client:elasticsearch-rest-client:${versions.elasticsearch}")
+
+    // githubを操作するために導入
+    // https://mvnrepository.com/artifact/org.kohsuke/github-api
+    implementation group: 'org.kohsuke', name: 'github-api', version: '1.313'
 
     // grpc
     implementation("io.github.lognet:grpc-spring-boot-starter:${versions.grpcSpringStarter}")
@@ -218,6 +224,7 @@ dependencies {
     testImplementation("org.projectlombok:lombok:${versions.lombok}")
     testImplementation("com.squareup.okhttp3:mockwebserver:${versions.okhttp}")
     testImplementation("org.assertj:assertj-core:${versions.assertj}")
+
 }
 
 protobuf {

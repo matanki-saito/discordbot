@@ -1,5 +1,6 @@
 package com.popush.henrietta.discord.config;
 
+import com.github.ygimenez.type.Emote;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,9 @@ public class BotDiscordConfig {
         for (var i = 0; i < 20; i++) {
             try {
                 var jda = JDABuilder.createDefault(discordToken)
-                        .enableIntents(GatewayIntent.DIRECT_MESSAGES)
+                        .enableIntents(GatewayIntent.DIRECT_MESSAGES,
+                                GatewayIntent.MESSAGE_CONTENT,
+                                GatewayIntent.DIRECT_MESSAGE_REACTIONS)
                         .addEventListeners(bot)
                                     .setActivity(Activity.playing(name))
                                     .build();
@@ -43,6 +46,7 @@ public class BotDiscordConfig {
                                        .setHandler(jda)
                                        .shouldRemoveOnReact(true)
                                        .build());
+
                 return jda;
 
             } catch (Exception e) {

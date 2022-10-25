@@ -9,9 +9,11 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.github.*;
 import org.slf4j.MDC;
@@ -43,14 +45,13 @@ public class BotListener extends ListenerAdapter {
 
         // webhookでタイトルが特殊なものはスレッドを作る
         if(event.isWebhookMessage()){
-            var sourceUrl = Objects.requireNonNull(event.getMessage()
+            var message = event.getMessage()
                     .getEmbeds()
-                    .get(0)
-                    .getUrl(),"-");
+                    .get(0);
 
             var messageJumpUrl = event.getMessage().getJumpUrl();
 
-            var m = p.matcher(sourceUrl);
+            var m = p.matcher(Objects.requireNonNull(message.getUrl(),"-"));
             if(m.find()){
                 var issueId = Integer.parseInt(m.group(1));
                 try {
@@ -62,7 +63,19 @@ public class BotListener extends ListenerAdapter {
                             *アクセス権が必要になりますので #アクセス権申請板 で申請をお願い致します。
                             """,messageJumpUrl));
 
-                    var a = event.getMessage().createThreadChannel("New Thread").complete();
+                    EmbedBuilder builder = new EmbedBuilder();
+                    builder.appendDescription(Objects.requireNonNull(message.getDescription(),"-"));
+                    builder.addField("url",messageJumpUrl,false);
+                    if(message.getImage() != null) {
+                        builder.setImage(message.getImage().getUrl());
+                    }
+
+                    event.getGuild()
+                            .getForumChannelsByName("issues",false)
+                            .get(0)
+                            .createForumPost(Objects.requireNonNull(message.getTitle(),"No Title"),
+                                    MessageCreateData.fromEmbeds(builder.build()))
+                            .complete();
 
                 } catch (IOException e){
                     throw new IllegalStateException(e);

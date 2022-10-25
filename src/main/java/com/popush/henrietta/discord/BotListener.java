@@ -64,6 +64,8 @@ public class BotListener extends ListenerAdapter {
                     EmbedBuilder builder = new EmbedBuilder();
                     builder.appendDescription(Objects.requireNonNull(message.getDescription(),"-"));
                     builder.addField("url",messageJumpUrl,false);
+
+                    // TODO: 画像が出ない
                     if(message.getImage() != null) {
                         builder.setImage(message.getImage().getUrl());
                     }

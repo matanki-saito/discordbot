@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -27,8 +26,6 @@ import com.popush.henrietta.discord.project.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static org.apache.coyote.http11.Constants.a;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -38,6 +35,9 @@ public class BotListener extends ListenerAdapter {
     private final GitHub gitHub;
 
     private static final Pattern p = Pattern.compile("https://github.com/matanki-saito/vic3jpadvmod/issues/(\\d+)");
+
+    // ![150x150](https://user-images.githubusercontent.com/35730970/198033585-5a7ca09d-94c3-4812-be0e-8077d5da8ceb.png)
+    private static final Pattern pImage = Pattern.compile("!\\[.*]\\((.*)\\)");
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
@@ -49,7 +49,7 @@ public class BotListener extends ListenerAdapter {
 
             var messageJumpUrl = event.getMessage().getJumpUrl();
 
-            var m = p.matcher(Objects.requireNonNull(message.getUrl(),"-"));
+            var m = p.matcher(Objects.requireNonNullElse(message.getUrl(),"-"));
             if(m.find()){
                 var issueId = Integer.parseInt(m.group(1));
                 try {
@@ -61,19 +61,32 @@ public class BotListener extends ListenerAdapter {
                             *アクセス権が必要になりますので #アクセス権申請板 で申請をお願い致します。
                             """,messageJumpUrl));
 
+                    var desc = Objects.requireNonNullElse(message.getDescription(),"-");
+                    var imageMatcher = pImage.matcher(desc);
+
                     EmbedBuilder builder = new EmbedBuilder();
-                    builder.appendDescription(Objects.requireNonNull(message.getDescription(),"-"));
                     builder.addField("url",messageJumpUrl,false);
 
-                    // TODO: 画像が出ない
-                    if(message.getImage() != null) {
-                        builder.setImage(message.getImage().getUrl());
+                    if(imageMatcher.find()){
+                        builder.setImage(imageMatcher.group(1));
                     }
 
+                    desc = imageMatcher.replaceAll("$1");
+                    builder.appendDescription(desc);
+
+                    var auther = "?";
+                    if(message.getAuthor() != null){
+                        auther = message.getAuthor().getName();
+                    }
+
+                    var title = Objects.requireNonNullElse(message.getTitle(),"No Title");
+                    // [matanki-saito/gactiontest] Issue opened: #1 test -> test
+                    var simpleTitle = title.replaceAll("^\\[matanki-saito/vic3jpadvmod] Issue opened: #\\d+\s+","");
+                    var simpleTitleByName = String.format("%s by %s",simpleTitle, auther);
                     event.getGuild()
                             .getForumChannelsByName("issues",false)
                             .get(0)
-                            .createForumPost(Objects.requireNonNull(message.getTitle(),"No Title"),
+                            .createForumPost(simpleTitleByName,
                                     MessageCreateData.fromEmbeds(builder.build()))
                             .complete();
 

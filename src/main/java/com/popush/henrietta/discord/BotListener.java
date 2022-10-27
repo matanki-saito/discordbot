@@ -106,7 +106,6 @@ public class BotListener extends ListenerAdapter {
                             .get(0)
                             .createForumPost(simpleTitleByName,
                                     MessageCreateData.fromEmbeds(builder.build()))
-                            .setTags(ForumTagSnowflake.fromId(tag))
                             .complete();
 
                 } catch (IOException e){

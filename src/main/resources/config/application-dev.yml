@@ -18,3 +18,4 @@ elasticsearch:
 discord:
   name: "henriettaII(dev)"
   #token: [from triela-private]
+  target-channel: "matanki-saito/gactiontest"

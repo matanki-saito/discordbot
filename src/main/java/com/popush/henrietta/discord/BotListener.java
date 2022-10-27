@@ -3,7 +3,6 @@ package com.popush.henrietta.discord;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -17,6 +16,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.github.*;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -35,7 +35,8 @@ public class BotListener extends ListenerAdapter {
 
     private final GitHub gitHub;
 
-    private static final Pattern p = Pattern.compile("https://github.com/matanki-saito/vic3jpadvmod/issues/(\\d+)");
+    @Value("${discord.target-channel}")
+    private String targetChannel;
 
     // ![150x150](https://user-images.githubusercontent.com/35730970/198033585-5a7ca09d-94c3-4812-be0e-8077d5da8ceb.png)
     private static final Pattern pImage = Pattern.compile("!\\[.*]\\((.*)\\)");
@@ -43,6 +44,8 @@ public class BotListener extends ListenerAdapter {
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         MDC.put("X-Track", UUID.randomUUID().toString());
+
+        final Pattern p = Pattern.compile("https://github.com/" + targetChannel + "/issues/(\\d+)");
 
         // webhookでタイトルが特殊なものはスレッドを作る
         if(event.isWebhookMessage() && event.getMessage().getEmbeds().size() > 0){
@@ -54,7 +57,7 @@ public class BotListener extends ListenerAdapter {
             if(m.find()){
                 var issueId = Integer.parseInt(m.group(1));
                 try {
-                    var repository = gitHub.getRepository("matanki-saito/vic3jpadvmod");
+                    var repository = gitHub.getRepository(targetChannel);
                     var targetIssue = repository.getIssue(issueId);
 
 
@@ -76,7 +79,7 @@ public class BotListener extends ListenerAdapter {
                         auther = message.getAuthor().getName();
                     }
 
-                    String tag = "";
+                    String tag = null;
                     if(desc.contains("問題の固有名詞")){
                         tag = "固有名詞";
                     } else if (desc.contains("問題の用語")){
@@ -91,18 +94,25 @@ public class BotListener extends ListenerAdapter {
                         tag = "固有名詞";
                     }
 
-                    targetIssue.setLabels(tag);
+                    if(tag != null){
+                        targetIssue.setLabels(tag);
+                    }
+
+                    final String finalTag = tag;
+
+                    var forum = event.getGuild().getForumChannelsByName("issues",false);
+                    var discordTag = forum.get(0).getAvailableTags().stream().filter(x->x.getName().equals(finalTag)).findAny();
 
                     var title = Objects.requireNonNullElse(message.getTitle(),"No Title");
-                    // [matanki-saito/gactiontest] Issue opened: #1 test -> test
-                    var simpleTitle = title.replaceAll("^\\[matanki-saito/vic3jpadvmod] Issue opened: #\\d+\s+","");
+                    var simpleTitle = title.replaceAll("^\\[" + targetChannel + "] Issue opened: #\\d+\s+","");
                     var simpleTitleByName = String.format("%s by %s",simpleTitle, auther);
-                    var issueMessage = event.getGuild()
-                            .getForumChannelsByName("issues",false)
-                            .get(0)
-                            .createForumPost(simpleTitleByName,
-                                    MessageCreateData.fromEmbeds(builder.build()))
-                            .complete();
+
+                    var forumPostAction = forum.get(0).createForumPost(simpleTitleByName, MessageCreateData.fromEmbeds(builder.build()));
+                    discordTag.ifPresent(x->{
+                        forumPostAction.setTags(ForumTagSnowflake.fromId(x.getId()));
+                    });
+
+                    var issueMessage = forumPostAction.complete();
 
                     targetIssue.comment(String.format("""
                             内部検討中です。進捗がありましたらここに報告します。校正メンバーと議論が必要である場合はお手数ですが#github議論板にて確認をお願い致します。
@@ -153,7 +163,7 @@ public class BotListener extends ListenerAdapter {
 
             GHRepository repo = null;
             try {
-                repo = gitHub.getRepository("matanki-saito/vic3jpadvmod");
+                repo = gitHub.getRepository(targetChannel);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

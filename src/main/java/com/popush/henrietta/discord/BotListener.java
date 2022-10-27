@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.lang3.StringUtils;
@@ -79,6 +80,23 @@ public class BotListener extends ListenerAdapter {
                         auther = message.getAuthor().getName();
                     }
 
+                    String tag = "";
+                    if(desc.contains("問題の固有名詞")){
+                        tag = "固有名詞";
+                    } else if (desc.contains("問題の用語")){
+                        tag = "ゲームシステム用語";
+                    } else if (desc.contains("問題のあるインターフェイス")){
+                        tag = "インターフェイス";
+                    } else if (desc.contains("問題のイベントタイトル")){
+                        tag = "イベント等テキスト";
+                    } else if (desc.contains("問題のツールチップ")){
+                        tag = "ツールチップ";
+                    } else if (desc.contains("問題の固有名詞と希望する変更")){
+                        tag = "固有名詞";
+                    }
+
+                    targetIssue.setLabels(tag);
+
                     var title = Objects.requireNonNullElse(message.getTitle(),"No Title");
                     // [matanki-saito/gactiontest] Issue opened: #1 test -> test
                     var simpleTitle = title.replaceAll("^\\[matanki-saito/vic3jpadvmod] Issue opened: #\\d+\s+","");
@@ -88,6 +106,7 @@ public class BotListener extends ListenerAdapter {
                             .get(0)
                             .createForumPost(simpleTitleByName,
                                     MessageCreateData.fromEmbeds(builder.build()))
+                            .setTags(ForumTagSnowflake.fromId(tag))
                             .complete();
 
                 } catch (IOException e){

@@ -56,11 +56,7 @@ public class BotListener extends ListenerAdapter {
                 try {
                     var repository = gitHub.getRepository("matanki-saito/vic3jpadvmod");
                     var targetIssue = repository.getIssue(issueId);
-                    targetIssue.comment(String.format("""
-                            内部検討中です。進捗がありましたらここに報告します。校正メンバーと議論が必要である場合はお手数ですが#github議論板にて確認をお願い致します。
-                            ---
-                            Discord:%s
-                            """,messageJumpUrl));
+
 
                     var desc = Objects.requireNonNullElse(message.getDescription(),"-");
                     var imageMatcher = pImage.matcher(desc);
@@ -101,12 +97,17 @@ public class BotListener extends ListenerAdapter {
                     // [matanki-saito/gactiontest] Issue opened: #1 test -> test
                     var simpleTitle = title.replaceAll("^\\[matanki-saito/vic3jpadvmod] Issue opened: #\\d+\s+","");
                     var simpleTitleByName = String.format("%s by %s",simpleTitle, auther);
-                    event.getGuild()
+                    var issueMessage = event.getGuild()
                             .getForumChannelsByName("issues",false)
                             .get(0)
                             .createForumPost(simpleTitleByName,
                                     MessageCreateData.fromEmbeds(builder.build()))
                             .complete();
+
+                    targetIssue.comment(String.format("""
+                            内部検討中です。進捗がありましたらここに報告します。校正メンバーと議論が必要である場合はお手数ですが#github議論板にて確認をお願い致します。
+                            Discord:%s
+                            """,issueMessage.getMessage().getJumpUrl()));
 
                 } catch (IOException e){
                     throw new IllegalStateException(e);

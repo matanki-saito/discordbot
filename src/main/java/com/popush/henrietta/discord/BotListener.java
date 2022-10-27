@@ -57,9 +57,9 @@ public class BotListener extends ListenerAdapter {
                     var repository = gitHub.getRepository("matanki-saito/vic3jpadvmod");
                     var targetIssue = repository.getIssue(issueId);
                     targetIssue.comment(String.format("""
-                            内部検討中です。議論の進捗についてご確認したい場合はお手数ですがDiscordのアカウントご用意後、下記にアクセスをお願い致します。
+                            内部検討中です。進捗がありましたらここに報告します。校正メンバーと議論が必要である場合はお手数ですが#github議論板にて確認をお願い致します。
+                            ---
                             Discord:%s
-                            *アクセス権が必要になりますので #アクセス権申請板 で申請をお願い致します。
                             """,messageJumpUrl));
 
                     var desc = Objects.requireNonNullElse(message.getDescription(),"-");

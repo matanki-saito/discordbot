@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,9 @@ import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -215,7 +218,7 @@ public class BotListener extends ListenerAdapter {
             /* 初めての場合はExceptionになる */
         }
 
-        if(!guildId.equals(targetGuildId) && emoCnt == 0 && List.of("kihyou","commit").contains(emoName)){
+        if(!guildId.equals(targetGuildId) || emoCnt != 0 || !List.of("kihyou","commit").contains(emoName)){
             return;
         }
 
@@ -233,8 +236,13 @@ public class BotListener extends ListenerAdapter {
         var forumThreadMessageBody = forumThreadComment.getContentDisplay();
         var forumThreadMessageAuther = forumThreadComment.getAuthor().getName();
         var forumThreadMessageUrl = forumThreadComment.getJumpUrl();
-        var forumThreadTitle = forumThreadComment.getChannel().asThreadChannel().getName();
-        var forumIssueTagMatcher = forumIssueTagPattern.matcher(forumThreadTitle);
+
+        Matcher forumIssueTagMatcher = null;
+        if(List.of(ChannelType.GUILD_PRIVATE_THREAD,ChannelType.GUILD_PUBLIC_THREAD)
+                .contains(forumThreadComment.getChannel().getType())) {
+            var forumThreadTitle = forumThreadComment.getChannel().asThreadChannel().getName();
+            forumIssueTagMatcher = forumIssueTagPattern.matcher(forumThreadTitle);
+        }
 
         try {
             // リアクションがついたコメントの内容をもとに新規のgithub issueを作る
@@ -248,7 +256,7 @@ public class BotListener extends ListenerAdapter {
                             .create();
             }
             // リアクションがついためコメントの内容をgithub issueに戻す
-            else if(emoName.equals("commit") && forumIssueTagMatcher.find()){
+            else if(emoName.equals("commit") && forumIssueTagMatcher != null && forumIssueTagMatcher.find()){
                 var githubIssueId = Integer.parseInt(forumIssueTagMatcher.group(1));
                 githubRepository.getIssue(githubIssueId).comment(forumThreadMessageBody);
             }

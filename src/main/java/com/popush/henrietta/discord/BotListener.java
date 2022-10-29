@@ -51,8 +51,6 @@ public class BotListener extends ListenerAdapter {
         if(event.isWebhookMessage() && event.getMessage().getEmbeds().size() > 0){
             var message = event.getMessage().getEmbeds().get(0);
 
-            var messageJumpUrl = event.getMessage().getJumpUrl();
-
             var m = p.matcher(Objects.requireNonNullElse(message.getUrl(),"-"));
             if(m.find()){
                 var issueId = Integer.parseInt(m.group(1));
@@ -65,7 +63,7 @@ public class BotListener extends ListenerAdapter {
                     var imageMatcher = pImage.matcher(desc);
 
                     EmbedBuilder builder = new EmbedBuilder();
-                    builder.addField("url",messageJumpUrl,false);
+                    builder.addField("url",Objects.requireNonNullElse(message.getUrl(),"-"),false);
 
                     if(imageMatcher.find()){
                         builder.setImage(imageMatcher.group(1));
@@ -111,13 +109,8 @@ public class BotListener extends ListenerAdapter {
                     discordTag.ifPresent(x->{
                         forumPostAction.setTags(ForumTagSnowflake.fromId(x.getId()));
                     });
-
-                    var issueMessage = forumPostAction.complete();
-
-                    targetIssue.comment(String.format("""
-                            内部検討中です。進捗がありましたらここに報告します。校正メンバーと議論が必要である場合はお手数ですが#github議論板にて確認をお願い致します。
-                            Discord:%s
-                            """,issueMessage.getMessage().getJumpUrl()));
+                    
+                    targetIssue.comment("[自動応答] 内部検討中です。進捗がありましたら追記いたします。追加のコメントが有りましたら下記にコメントの形で続けるようにお願い致します。");
 
                 } catch (IOException e){
                     throw new IllegalStateException(e);

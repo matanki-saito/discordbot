@@ -11,11 +11,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
+import lombok.AllArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -48,16 +47,20 @@ public class BotListener extends ListenerAdapter {
     private String targetChannel;
 
     private static final Pattern markdownImagePattern = compile("!\\[.*]\\((.*)\\)");
+    private static final Pattern forumIssueTagPattern = Pattern.compile("^\\[(\\d+)]\s(.*)");
 
     private Pattern githubIssueUrlPattern;
     private Pattern githubNewCommitTitlePattern;
     private Pattern githubOpenIssueTitlePattern;
+    private Pattern githubCloseIssueTitlePattern;
 
     @PostConstruct
     void postConstruct(){
         githubIssueUrlPattern = Pattern.compile("https://github.com/" + targetChannel + "/issues/(\\d+)");
         githubOpenIssueTitlePattern = Pattern.compile("^\\[" + targetChannel + "] Issue opened: #(\\d+)\s+(.+)");
-        githubNewCommitTitlePattern = Pattern.compile("^\\[" + targetChannel + "] New comment on issue: #(\\d+)\s+(.+)");
+        githubNewCommitTitlePattern = Pattern.compile("^\\[" + targetChannel + "] New comment on issue #(\\d+):\s+(.+)");
+        githubCloseIssueTitlePattern = Pattern.compile("^\\[" + targetChannel + "] Issue closed: #(\\d+)\s+(.+)");
+
     }
 
     private void issue(MessageEmbed message, ForumChannel forumChannel) throws IOException{
@@ -67,10 +70,13 @@ public class BotListener extends ListenerAdapter {
                 .map(MessageEmbed.AuthorInfo::getName)
                 .orElse("?");
         var githubIssueBody = Objects.requireNonNullElse(message.getDescription(),"-");
-        var githubIssueUrl = Objects.requireNonNullElse(message.getUrl(),"-");
+        var markdownImageMatcher = markdownImagePattern.matcher(githubIssueBody);
+        var githubIssueBodyFix = markdownImageMatcher.replaceAll("$1");
 
+        var githubIssueUrl = Objects.requireNonNullElse(message.getUrl(),"-");
         var repository = gitHub.getRepository(targetChannel);
         var githubOpenMatcher = githubOpenIssueTitlePattern.matcher(githubIssueTitle);
+        var githubCloseMatcher = githubCloseIssueTitlePattern.matcher(githubIssueTitle);
         var githubCommentMatcher = githubNewCommitTitlePattern.matcher(githubIssueTitle);
 
         var githubIssueLabel = Optional.of(githubIssueBody).map(x->{
@@ -90,10 +96,34 @@ public class BotListener extends ListenerAdapter {
             return null;
         });
 
-        if(githubCommentMatcher.find()) {
+        if(githubCommentMatcher.find()){
             var githubIssueId = Integer.parseInt(githubCommentMatcher.group(1));
-            var targetIssue = repository.getIssue(githubIssueId);
-
+            //var targetIssue = repository.getIssue(githubIssueId);
+            forumChannel.getThreadChannels()
+                    .stream()
+                    .filter(x->{
+                        var m = forumIssueTagPattern.matcher(x.getName());
+                        return m.find() && m.group(1).equals(githubIssueId+"");
+                    })
+                    .findAny()
+                    .ifPresent(x->{
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.addField("auther",githubIssueAuther,false);
+                        builder.setDescription(githubIssueBodyFix);
+                        x.sendMessageEmbeds(builder.build()).complete();
+                    });
+        } else if(githubCloseMatcher.find()) {
+            var githubIssueId = Integer.parseInt(githubCloseMatcher.group(1));
+            forumChannel.getThreadChannels()
+                    .stream()
+                    .filter(x->{
+                        var m = forumIssueTagPattern.matcher(x.getName());
+                        return m.find() && m.group(1).equals(githubIssueId+"");
+                    })
+                    .findAny()
+                    .ifPresent(x->{
+                        x.getManager().setArchived(false).complete();
+                    });
         } else if(githubOpenMatcher.find()){
             var githubIssueId = Integer.parseInt(githubOpenMatcher.group(1));
             var targetIssue = repository.getIssue(githubIssueId);
@@ -102,11 +132,9 @@ public class BotListener extends ListenerAdapter {
             builder.addField("Github URL",githubIssueUrl,false);
 
             // 画像処理
-            var markdownImageMatcher = markdownImagePattern.matcher(githubIssueBody);
             if(markdownImageMatcher.find()){
                 builder.setImage(markdownImageMatcher.group(1));
             }
-            var githubIssueBodyFix = markdownImageMatcher.replaceAll("$1");
             builder.appendDescription(githubIssueBodyFix);
 
             var forumPostAction = forumChannel

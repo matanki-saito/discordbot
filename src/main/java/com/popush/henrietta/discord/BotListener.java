@@ -3,13 +3,20 @@ package com.popush.henrietta.discord;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -27,6 +34,8 @@ import com.popush.henrietta.discord.project.Project;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.util.regex.Pattern.compile;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -38,82 +47,104 @@ public class BotListener extends ListenerAdapter {
     @Value("${discord.target-channel}")
     private String targetChannel;
 
-    // ![150x150](https://user-images.githubusercontent.com/35730970/198033585-5a7ca09d-94c3-4812-be0e-8077d5da8ceb.png)
-    private static final Pattern pImage = Pattern.compile("!\\[.*]\\((.*)\\)");
+    private static final Pattern markdownImagePattern = compile("!\\[.*]\\((.*)\\)");
+
+    private Pattern githubIssueUrlPattern;
+    private Pattern githubNewCommitTitlePattern;
+    private Pattern githubOpenIssueTitlePattern;
+
+    @PostConstruct
+    void postConstruct(){
+        githubIssueUrlPattern = Pattern.compile("https://github.com/" + targetChannel + "/issues/(\\d+)");
+        githubOpenIssueTitlePattern = Pattern.compile("^\\[" + targetChannel + "] Issue opened: #(\\d+)\s+(.+)");
+        githubNewCommitTitlePattern = Pattern.compile("^\\[" + targetChannel + "] New comment on issue: #(\\d+)\s+(.+)");
+    }
+
+    private void issue(MessageEmbed message, ForumChannel forumChannel) throws IOException{
+        var githubIssueTitle = Objects.requireNonNullElse(message.getTitle(),"No Title");
+        var githubIssueAuther = Optional
+                .ofNullable(message.getAuthor())
+                .map(MessageEmbed.AuthorInfo::getName)
+                .orElse("?");
+        var githubIssueBody = Objects.requireNonNullElse(message.getDescription(),"-");
+        var githubIssueUrl = Objects.requireNonNullElse(message.getUrl(),"-");
+
+        var repository = gitHub.getRepository(targetChannel);
+        var githubOpenMatcher = githubOpenIssueTitlePattern.matcher(githubIssueTitle);
+        var githubCommentMatcher = githubNewCommitTitlePattern.matcher(githubIssueTitle);
+
+        var githubIssueLabel = Optional.of(githubIssueBody).map(x->{
+            if(x.contains("問題の固有名詞")){
+                return "固有名詞";
+            } else if (x.contains("問題の用語")){
+                return "ゲームシステム用語";
+            } else if (x.contains("問題のあるインターフェイス")){
+                return "インターフェイス";
+            } else if (x.contains("問題のイベントタイトル")){
+                return "イベント等テキスト";
+            } else if (x.contains("問題のツールチップ")){
+                return "ツールチップ";
+            } else if (x.contains("問題の固有名詞と希望する変更")){
+                return "固有名詞";
+            }
+            return null;
+        });
+
+        if(githubCommentMatcher.find()) {
+            var githubIssueId = Integer.parseInt(githubCommentMatcher.group(1));
+            var targetIssue = repository.getIssue(githubIssueId);
+
+        } else if(githubOpenMatcher.find()){
+            var githubIssueId = Integer.parseInt(githubOpenMatcher.group(1));
+            var targetIssue = repository.getIssue(githubIssueId);
+
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.addField("Github URL",githubIssueUrl,false);
+
+            // 画像処理
+            var markdownImageMatcher = markdownImagePattern.matcher(githubIssueBody);
+            if(markdownImageMatcher.find()){
+                builder.setImage(markdownImageMatcher.group(1));
+            }
+            var githubIssueBodyFix = markdownImageMatcher.replaceAll("$1");
+            builder.appendDescription(githubIssueBodyFix);
+
+            var forumPostAction = forumChannel
+                    .createForumPost(
+                            String.format("[%d] %s by %s",githubIssueId, githubOpenMatcher.group(2), githubIssueAuther),
+                            MessageCreateData.fromEmbeds(builder.build()));
+
+            // タグ処理
+            if(githubIssueLabel.isPresent()){
+                // github issueにつける
+                targetIssue.setLabels(githubIssueLabel.get());
+                // forumにもつける
+                var forumTag =forumChannel.getAvailableTags().stream().filter(x->x.getName().equals(githubIssueLabel.get())).findAny();
+                forumTag.ifPresent(x->{
+                    forumPostAction.setTags(ForumTagSnowflake.fromId(x.getId()));
+                });
+            }
+
+            // forum投稿
+            forumPostAction.complete();
+            // github issue投稿
+            targetIssue.comment("[自動応答] 内部検討中です。進捗がありましたら追記いたします。追加のコメントが有りましたら下記にコメントの形で続けるようにお願い致します。");
+
+        }
+    }
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         MDC.put("X-Track", UUID.randomUUID().toString());
 
-        final Pattern p = Pattern.compile("https://github.com/" + targetChannel + "/issues/(\\d+)");
-
-        // webhookでタイトルが特殊なものはスレッドを作る
+        // new commit / issue
         if(event.isWebhookMessage() && event.getMessage().getEmbeds().size() > 0){
             var message = event.getMessage().getEmbeds().get(0);
-
-            var m = p.matcher(Objects.requireNonNullElse(message.getUrl(),"-"));
-            if(m.find()){
-                var issueId = Integer.parseInt(m.group(1));
+            var m = githubIssueUrlPattern.matcher(Objects.requireNonNullElse(message.getUrl(),"-"));
+            var forum = event.getGuild().getForumChannelsByName("issues",false);
+            if(m.find() && forum.size() > 0) {
                 try {
-                    var repository = gitHub.getRepository(targetChannel);
-                    var targetIssue = repository.getIssue(issueId);
-
-
-                    var desc = Objects.requireNonNullElse(message.getDescription(),"-");
-                    var imageMatcher = pImage.matcher(desc);
-
-                    EmbedBuilder builder = new EmbedBuilder();
-                    builder.addField("url",Objects.requireNonNullElse(message.getUrl(),"-"),false);
-
-                    if(imageMatcher.find()){
-                        builder.setImage(imageMatcher.group(1));
-                    }
-
-                    desc = imageMatcher.replaceAll("$1");
-                    builder.appendDescription(desc);
-
-                    var auther = "?";
-                    if(message.getAuthor() != null){
-                        auther = message.getAuthor().getName();
-                    }
-
-                    String tag = null;
-                    if(desc.contains("問題の固有名詞")){
-                        tag = "固有名詞";
-                    } else if (desc.contains("問題の用語")){
-                        tag = "ゲームシステム用語";
-                    } else if (desc.contains("問題のあるインターフェイス")){
-                        tag = "インターフェイス";
-                    } else if (desc.contains("問題のイベントタイトル")){
-                        tag = "イベント等テキスト";
-                    } else if (desc.contains("問題のツールチップ")){
-                        tag = "ツールチップ";
-                    } else if (desc.contains("問題の固有名詞と希望する変更")){
-                        tag = "固有名詞";
-                    }
-
-                    if(tag != null){
-                        targetIssue.setLabels(tag);
-                    }
-
-                    final String finalTag = tag;
-
-                    var forum = event.getGuild().getForumChannelsByName("issues",false);
-                    var discordTag = forum.get(0).getAvailableTags().stream().filter(x->x.getName().equals(finalTag)).findAny();
-
-                    var title = Objects.requireNonNullElse(message.getTitle(),"No Title");
-                    var simpleTitle = title.replaceAll("^\\[" + targetChannel + "] Issue opened: #\\d+\s+","");
-                    var simpleTitleByName = String.format("%s by %s",simpleTitle, auther);
-
-                    var forumPostAction = forum.get(0).createForumPost(simpleTitleByName, MessageCreateData.fromEmbeds(builder.build()));
-                    discordTag.ifPresent(x->{
-                        forumPostAction.setTags(ForumTagSnowflake.fromId(x.getId()));
-                    });
-
-                    forumPostAction.complete();
-
-                    targetIssue.comment("[自動応答] 内部検討中です。進捗がありましたら追記いたします。追加のコメントが有りましたら下記にコメントの形で続けるようにお願い致します。");
-
+                    issue(message, forum.get(0));
                 } catch (IOException e){
                     throw new IllegalStateException(e);
                 }

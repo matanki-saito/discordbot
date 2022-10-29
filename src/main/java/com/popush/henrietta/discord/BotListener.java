@@ -109,7 +109,9 @@ public class BotListener extends ListenerAdapter {
                     discordTag.ifPresent(x->{
                         forumPostAction.setTags(ForumTagSnowflake.fromId(x.getId()));
                     });
-                    
+
+                    forumPostAction.complete();
+
                     targetIssue.comment("[自動応答] 内部検討中です。進捗がありましたら追記いたします。追加のコメントが有りましたら下記にコメントの形で続けるようにお願い致します。");
 
                 } catch (IOException e){

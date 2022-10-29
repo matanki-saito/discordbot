@@ -19,3 +19,4 @@ discord:
   name: "henriettaII(prod)"
   #token: [from triela-private]
   target-channel: "matanki-saito/vic3jpadvmod"
+  target-guild-id: "1022767005662724096"

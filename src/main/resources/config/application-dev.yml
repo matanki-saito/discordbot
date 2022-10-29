@@ -19,3 +19,4 @@ discord:
   name: "henriettaII(dev)"
   #token: [from triela-private]
   target-channel: "matanki-saito/gactiontest"
+  target-guild-id: "705719465538748417"

@@ -46,6 +46,9 @@ public class BotListener extends ListenerAdapter {
     @Value("${discord.target-channel}")
     private String targetChannel;
 
+    @Value("${discord.target-guild-id}")
+    private String targetGuildId;
+
     private static final Pattern markdownImagePattern = compile("!\\[.*]\\((.*)\\)");
     private static final Pattern forumIssueTagPattern = Pattern.compile("^\\[(\\d+)]\s(.*)");
 
@@ -122,7 +125,7 @@ public class BotListener extends ListenerAdapter {
                     })
                     .findAny()
                     .ifPresent(x->{
-                        x.getManager().setArchived(false).complete();
+                        x.getManager().setArchived(true).complete();
                     });
         } else if(githubOpenMatcher.find()){
             var githubIssueId = Integer.parseInt(githubOpenMatcher.group(1));
@@ -203,47 +206,55 @@ public class BotListener extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         MDC.put("X-Track", UUID.randomUUID().toString());
 
-        String guildId = event.getGuild().getId();
-        String emoName = event.getReaction().getEmoji().getName();
-        int emoCnt = 0;
+        var guildId = event.getGuild().getId();
+        var emoName = event.getReaction().getEmoji().getName();
+        var emoCnt = 0;
         try {
             emoCnt = event.getReaction().getCount();
         } catch (IllegalStateException e){
             /* 初めての場合はExceptionになる */
         }
 
-        if(emoName.equals("kihyou") && emoCnt == 0 && guildId.equals("1022767005662724096")){
-            log.debug("kihyou");
-
-            GHRepository repo = null;
-            try {
-                repo = gitHub.getRepository(targetChannel);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            Message message = event.getChannel()
-                    .retrieveMessageById(event.getMessageId())
-                    .complete();
-
-            var messageBody = message.getContentDisplay();
-            var messageAuther = message.getAuthor().getName();
-            var messageUrl = message.getJumpUrl();
-
-            try {
-                repo.createIssue(StringUtils.truncate(message.getContentDisplay(),0,15))
-                        .body(String.format("""
-                        発言者:%s
-                        内容:%s
-                        URL:%s
-                        """,messageAuther,messageBody,messageUrl))
-                        .create();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        if(!guildId.equals(targetGuildId) && emoCnt == 0 && List.of("kihyou","commit").contains(emoName)){
+            return;
         }
 
+        GHRepository githubRepository = null;
+        try {
+            githubRepository = gitHub.getRepository(targetChannel);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
+        var forumThreadComment = event.getChannel()
+                .retrieveMessageById(event.getMessageId())
+                .complete();
+
+        var forumThreadMessageBody = forumThreadComment.getContentDisplay();
+        var forumThreadMessageAuther = forumThreadComment.getAuthor().getName();
+        var forumThreadMessageUrl = forumThreadComment.getJumpUrl();
+        var forumThreadTitle = forumThreadComment.getChannel().asThreadChannel().getName();
+        var forumIssueTagMatcher = forumIssueTagPattern.matcher(forumThreadTitle);
+
+        try {
+            // リアクションがついたコメントの内容をもとに新規のgithub issueを作る
+            if(emoName.equals("kihyou")){
+                    githubRepository.createIssue(StringUtils.truncate(forumThreadComment.getContentDisplay(),0,15))
+                            .body(String.format("""
+                            発言者:%s
+                            内容:%s
+                            URL:%s
+                            """,forumThreadMessageAuther,forumThreadMessageBody,forumThreadMessageUrl))
+                            .create();
+            }
+            // リアクションがついためコメントの内容をgithub issueに戻す
+            else if(emoName.equals("commit") && forumIssueTagMatcher.find()){
+                var githubIssueId = Integer.parseInt(forumIssueTagMatcher.group(1));
+                githubRepository.getIssue(githubIssueId).comment(forumThreadMessageBody);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         MDC.clear();
     }

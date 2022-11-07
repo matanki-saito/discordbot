@@ -52,6 +52,9 @@ public class BotListener extends ListenerAdapter {
     @Value("${discord.target-guild-id}")
     private String targetGuildId;
 
+    @Value("#{${discord.detection-users}}")
+    private List<String> detectionUsers;
+
     private static final Pattern markdownImagePattern = compile("!\\[.*]\\((.*)\\)");
     private static final Pattern forumIssueTagPattern = Pattern.compile("^\\[(\\d+)]\s(.*)");
 
@@ -176,6 +179,11 @@ public class BotListener extends ListenerAdapter {
             var message = event.getMessage().getEmbeds().get(0);
             var m = githubIssueUrlPattern.matcher(Objects.requireNonNullElse(message.getUrl(),"-"));
             var forum = event.getGuild().getForumChannelsByName("issues",false);
+
+            if(message.getAuthor() != null && detectionUsers.contains(message.getAuthor().getName())){
+                return;
+            }
+
             if(m.find() && forum.size() > 0) {
                 try {
                     issue(message, forum.get(0));

@@ -21,7 +21,9 @@ import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.github.*;
 import org.slf4j.MDC;
@@ -99,7 +101,7 @@ public class BotListener extends ListenerAdapter {
                 return "イベント等テキスト";
             } else if (x.contains("問題のツールチップ")){
                 return "ツールチップ";
-            } else if (x.contains("問題の固有名詞と希望する変更")){
+            } else if (x.contains("問題の固有名詞：希望する変更")){
                 return "固有名詞";
             }
             return null;
@@ -137,19 +139,13 @@ public class BotListener extends ListenerAdapter {
             var githubIssueId = Integer.parseInt(githubOpenMatcher.group(1));
             var targetIssue = repository.getIssue(githubIssueId);
 
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.addField("Github URL",githubIssueUrl,false);
-
-            // 画像処理
-            if(markdownImageMatcher.find()){
-                builder.setImage(markdownImageMatcher.group(1));
-            }
-            builder.appendDescription(githubIssueBodyFix);
+            MessageCreateBuilder createBuilder = new MessageCreateBuilder();
+            createBuilder.addContent(githubIssueBodyFix);
 
             var forumPostAction = forumChannel
                     .createForumPost(
                             String.format("[%d] %s by %s",githubIssueId, githubOpenMatcher.group(2), githubIssueAuther),
-                            MessageCreateData.fromEmbeds(builder.build()));
+                            createBuilder.build());
 
             // タグ処理
             if(githubIssueLabel.isPresent()){

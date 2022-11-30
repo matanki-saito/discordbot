@@ -82,9 +82,9 @@ public class BotListener extends ListenerAdapter {
                 .orElse("?");
         var githubIssueBody = Objects.requireNonNullElse(message.getDescription(),"-");
         var markdownImageMatcher = markdownImagePattern.matcher(githubIssueBody);
-        var githubIssueBodyFix = markdownImageMatcher.replaceAll("$1");
-
         var githubIssueUrl = Objects.requireNonNullElse(message.getUrl(),"-");
+        var githubIssueBodyFix = String.format("%s%n%n%s",markdownImageMatcher.replaceAll("$1"), githubIssueUrl);
+
         var repository = gitHub.getRepository(targetChannel);
         var githubOpenMatcher = githubOpenIssueTitlePattern.matcher(githubIssueTitle);
         var githubCloseMatcher = githubCloseIssueTitlePattern.matcher(githubIssueTitle);

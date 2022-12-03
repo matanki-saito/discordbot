@@ -11,4 +11,4 @@ fi
 
 printenv
 
-java -cp app:app/lib/* -Dspring.profiles.active=prod com.popush.henrietta.HenriettaApplication
+java --enable-preview -cp app:app/lib/* -Dspring.profiles.active=prod com.popush.henrietta.HenriettaApplication

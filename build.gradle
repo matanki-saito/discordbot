@@ -83,8 +83,8 @@ plugins {
 }
 
 group = 'com.popush'
-sourceCompatibility = 17
-targetCompatibility = 17
+sourceCompatibility = "17.PREVIEW"
+targetCompatibility = "17.PREVIEW"
 
 gitProperties {
     customProperty 'version', version
@@ -104,6 +104,10 @@ repositories {
 bootJar {
     archiveBaseName = 'henrietta-docker'
     archiveVersion = '1.0.0'
+}
+
+tasks.withType(JavaCompile).each {
+    it.options.compilerArgs.add('--enable-preview')
 }
 
 // コメントに日本語があるので必要

@@ -69,9 +69,6 @@ plugins {
     // リリース処理に必要
     // https://github.com/researchgate/gradle-release
     id 'net.researchgate.release' version "2.8.1"
-    // schemaspyで作った結果をダウンロードするのに必要
-    // https://github.com/michel-kraemer/gradle-download-task
-    id "de.undercouch.download" version "5.0.5"
     // actuator apiでコミットversionを確認する
     // https://plugins.gradle.org/plugin/com.gorylenko.gradle-git-properties
     id "com.gorylenko.gradle-git-properties" version "2.4.0"
@@ -130,9 +127,6 @@ gitPublish {
         from(javadoc) {
             into 'docs/javadoc'
         }
-        from("$buildDir/docs/schemadoc") {
-            into "docs/schemadoc"
-        }
     }
 
     preserve {
@@ -141,23 +135,6 @@ gitPublish {
     }
 
     commitMessage = '[skip ci] Publishing a new page'
-}
-
-// このアプリケーションでは作れないので、別にあるサーバで生成する
-// http://etc9.hatenablog.com/entry/2015/02/25/183902
-task schemaspydoc {
-    outputs.upToDateWhen { file('build/docs/schemadoc').exists() }
-    doLast {
-        def downloadedFile = new File(buildDir, 'downloaded/schemaspy.zip')
-        download {
-            src 'http://localhost:8080/download?host=127.0.0.1:3306&database=testdb&user=root&pass=1qaz2wsx'
-            dest downloadedFile
-        }
-        copy {
-            from zipTree(downloadedFile)
-            into new File(projectDir, 'build/docs/schemadoc')
-        }
-    }
 }
 
 docker {

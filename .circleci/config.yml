@@ -121,7 +121,6 @@ jobs:
       - run: |
           ./gradlew release -Prelease.useAutomaticVersion=true
           ./gradlew test
-          ./gradlew schemaspydoc
           ./gradlew gitPublishPush
 
   update:

@@ -1,6 +1,7 @@
 package com.popush.henrietta.github;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,5 +13,7 @@ public class GithubCommonIssueWebhookResponse {
     private Integer number;
     private String title;
     private String url;
+    @JsonProperty("html_url")
+    private String htmlUrl;
     private String body;
 }

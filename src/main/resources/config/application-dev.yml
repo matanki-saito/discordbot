@@ -2,14 +2,6 @@ spring:
   redis:
     host: localhost
     port: 6379
-  statemachine:
-    data:
-      jpa:
-        repositories:
-          enabled: false
-      mongo:
-        repositories:
-          enabled: false
 elasticsearch:
   host: localhost
   port: 9200

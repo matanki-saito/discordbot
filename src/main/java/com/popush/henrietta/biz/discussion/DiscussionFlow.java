@@ -63,8 +63,8 @@ public class DiscussionFlow {
 
         // discordに１回で投稿できるのが最大2000文字なのでそれ以上になる場合は分割投稿する
         var githubIssueBodies = Stream.concat(TextUtils
-                .splitMessage(githubIssueBody, 1900, "###")
-                .stream(), Stream.of(githubIssueUrl))
+                        .splitMessage(githubIssueBody, 1900, "###")
+                        .stream(), Stream.of(githubIssueUrl))
                 .toList();
 
         var discordMessageBuilder = new MessageCreateBuilder();
@@ -241,7 +241,7 @@ public class DiscussionFlow {
                 response.getRepository().getFullName(),
                 response.getSender().getLogin(),
                 response.getIssue().getBody(),
-                response.getIssue().getUrl(),
+                response.getIssue().getHtmlUrl(),
                 getDefaultForumChannel(jda));
 
         return "success";

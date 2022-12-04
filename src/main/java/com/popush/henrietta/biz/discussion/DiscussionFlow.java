@@ -227,7 +227,7 @@ public class DiscussionFlow {
                         issue.getRepository().getFullName(),
                         issue.getUser().getLogin(),
                         issue.getBody(),
-                        issue.getUrl().toString(),
+                        issue.getHtmlUrl().toString(),
                         getDefaultForumChannel(jda));
             } catch (Exception e) {
                 throw new IllegalStateException(e);

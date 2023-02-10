@@ -21,11 +21,8 @@ jobs:
           java-version: 17
       - name: publish application docker to github packages
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u matanki-saito --password-stdin
+          echo ${{ secrets.DOCKER_PASS }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
           ./gradlew docker dockerPush
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USER_NAME: matanki.saito
       - name: update version and tagging
         run: |
           git config --local user.email "matanki.saito@gmail.com"

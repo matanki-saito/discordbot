@@ -9,8 +9,8 @@ class TextUtilsTest {
 
     @Test
     void splitMessage() {
-        var text = "###aaaaa###bbbb###ccccccccc###dddddd";
+        var text = "###ZZZZZZZZZZ\nZZZZZZZZZZZZZZZZZZZZ###bbbb###ccccc###dddddd";
         var texts = TextUtils.splitMessage(text, 18, "###");
-        Assertions.assertEquals(texts, List.of("###aaaaa###bbbb", "###ccccccccc", "###dddddd"));
+        Assertions.assertEquals(texts, List.of("###ZZZZZZZZZZ", "ZZZZZZZZZZZZZZZZZZZZ", "###bbbb###ccccc", "###dddddd"));
     }
 }

@@ -154,8 +154,8 @@ test {
 
 release {
     // [skip ci]をコメントに入れないと、無限ループする
-    preTagCommitMessage = '[skip ci] [Gradle Release Plugin] - pre tag commit: '
-    tagCommitMessage = '[skip ci] [Gradle Release Plugin] - creating tag: '
+    preTagCommitMessage = '[Gradle Release Plugin] - pre tag commit: '
+    tagCommitMessage = '[Gradle Release Plugin] - creating tag: '
     newVersionCommitMessage = '[skip ci] [Gradle Release Plugin] - new version commit: '
 }
 

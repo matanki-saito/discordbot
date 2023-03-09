@@ -104,3 +104,5 @@ This project.
 
 - [Schemaspy](https://matanki-saito.github.io/discordbot/schemadoc/)
 - [Javadoc](https://matanki-saito.github.io/discordbot/javadoc/)
+
+----

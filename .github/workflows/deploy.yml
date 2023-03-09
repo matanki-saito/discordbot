@@ -5,7 +5,8 @@ on:
     tags:
       - '*'
 jobs:
-  github-example-tags:
+  build-job:
+    runs-on: ubuntu-latest
     steps:
       - name: GitHub Tag Name
         run: |

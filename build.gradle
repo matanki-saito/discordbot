@@ -55,7 +55,10 @@ buildscript {
             // https://github.com/grpc/grpc-java
             'grpcSpringStarter'    : '4.7.0',
             'grpc'                 : '3.20.1',
-            'grpcGenJava'          : '1.45.1'
+            'grpcGenJava'          : '1.45.1',
+
+            // deepl翻訳用SDK
+            'deepl'                : '1.1.0',
     ]
 }
 
@@ -176,6 +179,8 @@ dependencies {
     implementation('com.github.ben-manes.caffeine:caffeine')
     implementation("org.slf4j:slf4j-api:${versions.slf4jApi}")
     implementation("com.github.napstr:logback-discord-appender:${versions.logbackDiscord}")
+    implementation("com.deepl.api:deepl-java:${versions.deepl}")
+
     implementation("net.dv8tion:JDA:${versions.JDA}")
     //implementation("com.github.ygimenez:Pagination-Utils:${versions.JDAUtils}")
     // 上記からForkされた物。JDA5.x.xに追従している

@@ -1,5 +1,7 @@
 package com.popush.henrietta.biz.project.search;
 
+import com.deepl.api.DeepLException;
+import com.deepl.api.Translator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
@@ -42,6 +44,8 @@ public class SearchProject implements Project {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;
 
+    private final Translator deeplTranslator;
+
     private static final Pattern p = Pattern.compile("^([a-zA-Z\\d]+)::([a-zA-Z\\d]*)[\s　]*(.*)");
 
     private String type;
@@ -62,7 +66,7 @@ public class SearchProject implements Project {
 
         type = matcher.group(1);
         opecode = matcher.group(2);
-        searchWords =List.of(matcher.group(3).split("[\s　]"));
+        searchWords = List.of(matcher.group(3).split("[\s　]"));
         messageChannel = event.getChannel();
 
         return true;
@@ -145,8 +149,8 @@ public class SearchProject implements Project {
         }
 
         // search
-        SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource().size(opecode.contains("r") ? 1 :10);
-        if(opecode.contains("r")){
+        SearchSourceBuilder searchBuilder = SearchSourceBuilder.searchSource().size(opecode.contains("r") ? 1 : 10);
+        if (opecode.contains("r")) {
             var aggBuilders = AggregationBuilders
                     .terms("game")
                     .field("pz_pj_code")
@@ -165,7 +169,7 @@ public class SearchProject implements Project {
             searchBuilder.aggregation(aggBuilders);
         }
 
-        if(!String.join("",searchWords).equals("")) {
+        if (!String.join("", searchWords).equals("")) {
             searchBuilder.query(boolQuery);
         }
         SearchRequest request = new SearchRequest(type).source(searchBuilder);
@@ -183,8 +187,7 @@ public class SearchProject implements Project {
             EmbedBuilder builder = new EmbedBuilder();
             builder.appendDescription("見つかりませんでした");
             pages.add(new Page(builder.build()));
-        }
-        else if(opecode.contains("r")){
+        } else if (opecode.contains("r")) {
             final EmbedBuilder builder = new EmbedBuilder();
 
             Terms game = response.getAggregations().get("game");
@@ -211,22 +214,21 @@ public class SearchProject implements Project {
                 }
 
                 reportBuilder.build().getPercentItems().forEach(item -> {
-                        builder.addField("%d文字 ~ %d文字".formatted(item.getLengthBegin(), item.getLengthEnd()),
-                                "完了率：%.2f%%(翻訳済み：%d個/全体：%d個)".formatted(item.getTranslatedItemPercent() * 100,
-                                        item.getTranslatedItemCount(),
-                                        item.getAllCount()),
-                                false);
+                    builder.addField("%d文字 ~ %d文字".formatted(item.getLengthBegin(), item.getLengthEnd()),
+                            "完了率：%.2f%%(翻訳済み：%d個/全体：%d個)".formatted(item.getTranslatedItemPercent() * 100,
+                                    item.getTranslatedItemCount(),
+                                    item.getAllCount()),
+                            false);
                 });
             }
             pages.add(new Page(builder.build()));
-        }
-        else if(opecode.contains("g")) {
+        } else if (opecode.contains("g")) {
             List<String> result = new ArrayList<>();
 
-            String[] emojiNumber = { "0⃣", "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣" };
+            String[] emojiNumber = {"0⃣", "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣"};
 
             int idx = 0;
-            for (var x : results.subList(0, Math.min(9,results.size()))) {
+            for (var x : results.subList(0, Math.min(9, results.size()))) {
                 ParatranzEntry data;
                 try {
                     data = elasticObjectMapper.readValue(x.getSourceAsString(), ParatranzEntry.class);
@@ -263,7 +265,11 @@ public class SearchProject implements Project {
             builder.appendDescription(String.join("\n", result));
             pages.add(new Page(builder.build()));
         } else {
-            for (var idx = 0; idx < results.size(); idx++) {
+            var length = results.size();
+            if (opecode.contains("d"))
+                length = 3;
+
+            for (var idx = 0; idx < length; idx++) {
                 final EmbedBuilder builder = new EmbedBuilder();
 
                 ParatranzEntry data;
@@ -279,7 +285,7 @@ public class SearchProject implements Project {
                 final var key = String.format("[%s](%s)", data.getKey(), url);
 
                 builder.appendDescription(
-                        String.format("%d件見つかりました。%d件目を表示します（最大10件）", results.size(), idx + 1));
+                        String.format("%d件見つかりました。%d件目を表示します（最大%d件）", results.size(), idx + 1, length));
 
                 builder.addField("key",
                         StringUtils.abbreviate(Optional.ofNullable(key).orElse("不明"),
@@ -295,6 +301,18 @@ public class SearchProject implements Project {
                         StringUtils.abbreviate(Optional.ofNullable(data.getTranslation()).orElse("不明"),
                                 1000),
                         false);
+
+                if (opecode.contains("d")) {
+                    try {
+                        var text = deeplTranslator.translateText(data.getOriginal(), null, "ja");
+                        builder.addField("translation(deepl)",
+                                StringUtils.abbreviate(Optional.ofNullable(text.getText()).orElse("-"),
+                                        1000),
+                                false);
+                    } catch (InterruptedException | DeepLException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
 
                 builder.addField("filePath",
                         StringUtils.abbreviate(Optional.ofNullable(data.getFilePath()).orElse("不明"),

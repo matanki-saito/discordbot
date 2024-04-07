@@ -23,14 +23,3 @@ management:
     web:
       exposure:
         include: "health,info,prometheus"
-grpc:
-  port: 6565
-  enableReflection: true
-  shutdownGrace: 30
-  netty-server:
-    keep-alive-time: 30s
-    max-inbound-message-size: 10MB
-    primary-listen-address: 10.10.15.23:0
-    additional-listen-addresses:
-      - 192.168.0.100:6767
-    on-collision-prefer-shaded-netty: false

@@ -1,8 +1,10 @@
 package com.popush.henrietta.elasticsearch.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.ExistsRequest;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import com.github.matanki_saito.rico.exception.ArgumentException;
+import com.github.matanki_saito.rico.exception.SystemException;
 import com.github.matanki_saito.rico.loca.PdxLocaSource;
 import com.popush.henrietta.discord.states.ParatranzEntry;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +20,15 @@ public class EsPdxLocaSource implements PdxLocaSource {
 
     private final ElasticsearchClient elasticsearchClient;
 
+    private PdxLocaSourceFilter filter;
+
     @Override
     public PdxLocaYamlRecord get(String key) {
 
         GetResponse<ParatranzEntry> response;
         try {
             response = elasticsearchClient.get(g -> g
-                            .index("eu4")
+                            .index(String.join(",", filter.getIndecies()))
                             .id(key),
                     ParatranzEntry.class
             );
@@ -34,16 +38,27 @@ public class EsPdxLocaSource implements PdxLocaSource {
         var src = Objects.requireNonNullElse(response.source(), new ParatranzEntry());
 
         return new PdxLocaYamlRecord(src.getKey(), src.getStage(), src.getTranslation(),
-                "", 0, src.getFile());
+                "", 0, src.getFile(), response.index());
     }
 
     @Override
-    public List<String> getKeys(String fileName) throws ArgumentException {
-        return null;
+    public List<String> getKeys() throws ArgumentException, SystemException {
+        return List.of();
     }
 
     @Override
     public boolean exists(String key) {
-        return false;
+        try {
+            return elasticsearchClient.exists(ExistsRequest.of(
+                    g -> g.index(String.join(",", this.filter.getIndecies())).id(key))
+            ).value();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void apply(PdxLocaSourceFilter filter) {
+        this.filter = filter;
     }
 }

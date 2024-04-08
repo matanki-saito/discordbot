@@ -1,6 +1,11 @@
 package com.popush.henrietta.discord.project.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.matanki_saito.rico.exception.ArgumentException;
+import com.github.matanki_saito.rico.exception.SystemException;
+import com.github.matanki_saito.rico.loca.PdxLocaMatchPattern;
+import com.github.matanki_saito.rico.loca.PdxLocaSource;
+import com.github.matanki_saito.rico.loca.PdxLocaYmlTool;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
 import com.popush.henrietta.discord.project.Project;
@@ -43,6 +48,7 @@ public class SearchProject implements Project {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;
     private final EsPdxLocaSource esPdxLocaSource;
+    private final PdxLocaMatchPattern pdxLocaMatchPattern;
 
     private static final Pattern p = Pattern.compile("^([a-zA-Z\\d]+)::([a-zA-Z\\d]*)[\s　]*(.*)");
 
@@ -71,7 +77,7 @@ public class SearchProject implements Project {
     }
 
     @Override
-    public void execute() {
+    public void execute()  {
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
@@ -263,6 +269,10 @@ public class SearchProject implements Project {
             builder.appendDescription(String.join("\n", result));
             pages.add(Page.of(builder.build()));
         } else {
+            esPdxLocaSource.apply(PdxLocaSource.PdxLocaSourceFilter
+                    .builder()
+                    .indecies(List.of(type))
+                    .build());
             for (var idx = 0; idx < results.size(); idx++) {
                 final EmbedBuilder builder = new EmbedBuilder();
 
@@ -278,7 +288,13 @@ public class SearchProject implements Project {
                         data.getKey());
                 final var key = String.format("[%s](%s)", data.getKey(), url);
 
-                var normalizedText = esPdxLocaSource.get(data.getKey()).getBody();
+
+                var normalizedText = "";
+                try{
+                    normalizedText = PdxLocaYmlTool.normalize(data.getKey(),esPdxLocaSource,pdxLocaMatchPattern);
+                } catch (SystemException | ArgumentException e){
+                    //
+                }
 
                 builder.appendDescription(
                         String.format("%d件見つかりました。%d件目を表示します（最大10件）", results.size(), idx + 1));
@@ -311,7 +327,6 @@ public class SearchProject implements Project {
                 pages.add(Page.of(builder.build()));
             }
         }
-
 
 
         // send

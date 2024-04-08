@@ -41,7 +41,7 @@ buildscript {
             'micrometer'           : '1.12.4',
 
             // PDXテキストの展開
-            'rico'                 : '0.0.10'
+            'rico'                 : '0.0.11'
     ]
 }
 

@@ -1,4 +1,4 @@
-package com.popush.henrietta.elasticsearch.service;
+package com.popush.henrietta.biz.project.loca;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.ExistsRequest;
@@ -6,7 +6,7 @@ import co.elastic.clients.elasticsearch.core.GetResponse;
 import com.github.matanki_saito.rico.exception.ArgumentException;
 import com.github.matanki_saito.rico.exception.SystemException;
 import com.github.matanki_saito.rico.loca.PdxLocaSource;
-import com.popush.henrietta.discord.states.ParatranzEntry;
+import com.popush.henrietta.biz.project.states.ParatranzEntry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

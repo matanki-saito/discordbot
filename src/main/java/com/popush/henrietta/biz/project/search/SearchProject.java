@@ -11,9 +11,9 @@ import com.github.matanki_saito.rico.loca.PdxLocaYmlTool;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
 import com.popush.henrietta.biz.project.Project;
+import com.popush.henrietta.biz.project.loca.EsPdxLocaSource;
 import com.popush.henrietta.biz.project.states.ParatranzAggregationReport;
 import com.popush.henrietta.biz.project.states.ParatranzEntry;
-import com.popush.henrietta.elasticsearch.service.EsPdxLocaSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,6 +32,7 @@ import org.elasticsearch.search.aggregations.bucket.range.Range;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @RequiredArgsConstructor
 @Scope("prototype")
+
 public class SearchProject implements Project {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;

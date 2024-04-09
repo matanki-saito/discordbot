@@ -34,7 +34,7 @@ buildscript {
 
             // lombok
             // https://mvnrepository.com/artifact/org.projectlombok/lombok
-            'lombok'               : '1.18.24',
+            'lombok'               : '1.18.30',
 
             // micrometer
             // spring actuatorがprometheus形式でmetrixを出力するために必要
@@ -67,8 +67,8 @@ plugins {
 }
 
 group = 'com.popush'
-sourceCompatibility = "17.PREVIEW"
-targetCompatibility = "17.PREVIEW"
+sourceCompatibility = "21"
+targetCompatibility = "21"
 
 gitProperties {
     customProperty 'version', version
@@ -95,10 +95,6 @@ repositories {
 bootJar {
     archiveBaseName = 'henrietta-docker'
     archiveVersion = '1.0.0'
-}
-
-tasks.withType(JavaCompile).each {
-    it.options.compilerArgs.add('--enable-preview')
 }
 
 // コメントに日本語があるので必要

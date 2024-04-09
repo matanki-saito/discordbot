@@ -1,4 +1,4 @@
-package com.popush.henrietta.elasticsearch.service;
+package com.popush.henrietta.biz.project.loca;
 
 import com.github.matanki_saito.rico.exception.ArgumentException;
 import com.github.matanki_saito.rico.exception.MachineException;

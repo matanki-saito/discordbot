@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-  <!-- デフォルト設定読み込み -->
-  <include resource="org/springframework/boot/logging/logback/defaults.xml" />
-  <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <!-- デフォルト設定読み込み -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
-  <!--ローカル環境及びテスト環境では、INFO レベル以上を console に出力する -->
-  <springProfile name="dev">
-    <root level="DEBUG">
-      <appender-ref ref="CONSOLE" />
-    </root>
-  </springProfile>
+    <!--ローカル環境及びテスト環境では、INFO レベル以上を console に出力する -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <!-- encoders are  by default assigned the type
-         ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
-    <encoder>
-      <pattern>
-        <![CDATA[date:%date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC}\tthread:%thread\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
-    </encoder>
-  </appender>
-
-  <springProfile name="prod">
-    <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
-      <webhookUri>
-        ${LOGBACK_DISCORD_WEBHOOK}
-      </webhookUri>
-      <layout class="ch.qos.logback.classic.PatternLayout">
-        <pattern>
-          <![CDATA[date:%date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC}\tthread:%thread\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
-      </layout>
-      <!-- Fill in username and avatarUrl with your desired values -->
-      <username>Error Notify(henrietta)</username>
-      <avatarUrl>https://i.imgur.com/oM5BYSW.jpg</avatarUrl>
-      <tts>false</tts>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are  by default assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <pattern>
+                <![CDATA[date:%date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC}\tthread:%thread\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
+        </encoder>
     </appender>
 
-    <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
-      <appender-ref ref="DISCORD" />
-      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-        <level>ERROR</level>
-      </filter>
-    </appender>
+    <springProfile name="prod">
+        <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
+            <webhookUri>
+                ${LOGBACK_DISCORD_WEBHOOK}
+            </webhookUri>
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>
+                    <![CDATA[date:%date{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX", UTC}\tthread:%thread\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
+            </layout>
+            <!-- Fill in username and avatarUrl with your desired values -->
+            <username>Error Notify(henrietta)</username>
+            <avatarUrl>https://i.imgur.com/oM5BYSW.jpg</avatarUrl>
+            <tts>false</tts>
+        </appender>
 
-    <root level="INFO">
-      <appender-ref ref="ASYNC_DISCORD" />
-      <appender-ref ref="STDOUT" />
-    </root>
-  </springProfile>
+        <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="DISCORD"/>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>ERROR</level>
+            </filter>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC_DISCORD"/>
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
 </configuration>

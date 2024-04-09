@@ -41,7 +41,10 @@ buildscript {
             'micrometer'           : '1.12.4',
 
             // PDXテキストの展開
-            'rico'                 : '0.0.11'
+            'rico'                 : '0.0.11',
+
+            // deepl翻訳用SDK
+            'deepl'                : '1.1.0',
     ]
 }
 
@@ -64,8 +67,8 @@ plugins {
 }
 
 group = 'com.popush'
-sourceCompatibility = 17
-targetCompatibility = 17
+sourceCompatibility = "17.PREVIEW"
+targetCompatibility = "17.PREVIEW"
 
 gitProperties {
     customProperty 'version', version
@@ -92,6 +95,10 @@ repositories {
 bootJar {
     archiveBaseName = 'henrietta-docker'
     archiveVersion = '1.0.0'
+}
+
+tasks.withType(JavaCompile).each {
+    it.options.compilerArgs.add('--enable-preview')
 }
 
 // コメントに日本語があるので必要
@@ -138,8 +145,8 @@ test {
 
 release {
     // [skip ci]をコメントに入れないと、無限ループする
-    preTagCommitMessage = '[skip ci] [Gradle Release Plugin] - pre tag commit: '
-    tagCommitMessage = '[skip ci] [Gradle Release Plugin] - creating tag: '
+    preTagCommitMessage = '[Gradle Release Plugin] - pre tag commit: '
+    tagCommitMessage = '[Gradle Release Plugin] - creating tag: '
     newVersionCommitMessage = '[skip ci] [Gradle Release Plugin] - new version commit: '
 }
 
@@ -166,6 +173,7 @@ dependencies {
     implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.17.4'
     //implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
     implementation group: 'org.kohsuke', name: 'github-api', version: '1.313'
+    implementation("com.deepl.api:deepl-java:${versions.deepl}")
 
     // service
     implementation("com.github.matanki_saito:rico:${versions.rico}")

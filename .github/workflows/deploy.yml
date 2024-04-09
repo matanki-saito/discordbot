@@ -1,0 +1,22 @@
+name: deploy application
+
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  build-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub Tag Name
+        run: |
+          echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+          echo "Tag name from github.ref_name: ${{  github.ref_name }}"
+      - name: Update manifests operation
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
+          https://api.github.com/repos/matanki-saito/localservers/actions/workflows/update.yaml/dispatches \
+          -d "{\"ref\":\"main\", \"inputs\": { \"source\":\"ente-pubblico-per-il-benessere-sociale/henrietta/deployment.yaml\", \"target\":\"spec.template.spec.containers.0.image\", \"value\":\"gnagaoka/henrietta-app:$GITHUB_REF_NAME\"}}"

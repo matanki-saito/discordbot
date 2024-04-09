@@ -1,15 +1,8 @@
 spring:
-  redis:
-    host: 172.17.0.1
-    port: 6379
-  statemachine:
-    data:
-      jpa:
-        repositories:
-          enabled: false
-      mongo:
-        repositories:
-          enabled: false
+  data:
+    redis:
+      host: 172.17.0.1
+      port: 6379
 elasticsearch:
   host: 172.17.0.1
   port: 9200
@@ -18,3 +11,5 @@ elasticsearch:
 discord:
   name: "henriettaII(prod)"
   #token: [from triela-private]
+  target-channel: "matanki-saito/vic3jpadvmod"
+  target-guild-id: "1022767005662724096"

@@ -36,12 +36,14 @@ See [paratranz2es](https://github.com/matanki-saito/paratranz2es) README.Lowerca
 ignored.
 
 #### Search Options
+
 | Code   | Description |
 |--------|------------|
 | a      |  words AND |
 | (none) |  words OR  |
 
 #### Match Options
+
 | Code | Description |
 | ---- | ---- |
 | g | list mode |
@@ -50,10 +52,10 @@ ignored.
 #### Source Options
 
 | Code | Description |
-| ---- | ---- |
-| t | Search source is translated text |
-| k | Search source is key  |
-| o | Search source is original text |
+|------| ---- |
+| t    | Search source is translated text |
+| k    | Search source is key  |
+| o    | Search source is original text |
 
 #### output Options
 
@@ -62,6 +64,12 @@ ignored.
 | g      | List          |
 | r      | Aggregation   |
 | (none) | search        |
+
+#### search options
+
+| Code   | Description        |
+|--------|--------------------|
+| d      | translate by DeepL |
 
 #### Search-word
 
@@ -96,3 +104,5 @@ This project.
 
 - [Schemaspy](https://matanki-saito.github.io/discordbot/schemadoc/)
 - [Javadoc](https://matanki-saito.github.io/discordbot/javadoc/)
+
+----

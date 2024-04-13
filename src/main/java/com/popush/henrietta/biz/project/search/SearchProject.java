@@ -5,8 +5,8 @@ import com.deepl.api.Translator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.matanki_saito.rico.exception.ArgumentException;
 import com.github.matanki_saito.rico.exception.SystemException;
+import com.github.matanki_saito.rico.loca.PdxLocaFilter;
 import com.github.matanki_saito.rico.loca.PdxLocaMatchPattern;
-import com.github.matanki_saito.rico.loca.PdxLocaSource;
 import com.github.matanki_saito.rico.loca.PdxLocaYmlTool;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
@@ -32,7 +32,6 @@ import org.elasticsearch.search.aggregations.bucket.range.Range;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -277,11 +276,6 @@ public class SearchProject implements Project {
             builder.appendDescription(String.join("\n", result));
             pages.add(Page.of(builder.build()));
         } else {
-            esPdxLocaSource.apply(PdxLocaSource.PdxLocaSourceFilter
-                    .builder()
-                    .indecies(List.of(type))
-                    .build());
-
             var length = results.size();
             if (opecode.contains("d"))
                 length = 3;
@@ -305,7 +299,14 @@ public class SearchProject implements Project {
 
                 var normalizedText = "";
                 try {
-                    normalizedText = PdxLocaYmlTool.normalize(data.getKey(), esPdxLocaSource, pdxLocaMatchPattern);
+                    normalizedText = PdxLocaYmlTool.normalize(
+                            data.getKey(),
+                            esPdxLocaSource,
+                            pdxLocaMatchPattern,
+                            PdxLocaFilter
+                                    .builder()
+                                    .indecies(List.of(type))
+                                    .build());
                 } catch (SystemException | ArgumentException e) {
                     //
                 }
@@ -318,11 +319,6 @@ public class SearchProject implements Project {
                                 1000),
                         false);
 
-                builder.addField("normalize",
-                        StringUtils.abbreviate(Optional.ofNullable(normalizedText).orElse("不明"),
-                                1000),
-                        false);
-
                 builder.addField("original",
                         StringUtils.abbreviate(Optional.ofNullable(data.getOriginal()).orElse("不明"),
                                 1000),
@@ -330,6 +326,11 @@ public class SearchProject implements Project {
 
                 builder.addField("translation",
                         StringUtils.abbreviate(Optional.ofNullable(data.getTranslation()).orElse("不明"),
+                                1000),
+                        false);
+
+                builder.addField("demo text（実験中）",
+                        StringUtils.abbreviate(Optional.ofNullable(normalizedText).orElse("不明"),
                                 1000),
                         false);
 

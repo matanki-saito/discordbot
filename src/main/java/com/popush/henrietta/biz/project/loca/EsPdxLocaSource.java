@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch.core.ExistsRequest;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import com.github.matanki_saito.rico.exception.ArgumentException;
 import com.github.matanki_saito.rico.exception.SystemException;
+import com.github.matanki_saito.rico.loca.PdxLocaFilter;
 import com.github.matanki_saito.rico.loca.PdxLocaSource;
 import com.popush.henrietta.biz.project.states.ParatranzEntry;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,8 @@ public class EsPdxLocaSource implements PdxLocaSource {
 
     private final ElasticsearchClient elasticsearchClient;
 
-    private PdxLocaSourceFilter filter;
-
     @Override
-    public PdxLocaYamlRecord get(String key) {
+    public PdxLocaYamlRecord get(String key, PdxLocaFilter filter) {
 
         GetResponse<ParatranzEntry> response;
         try {
@@ -42,23 +41,18 @@ public class EsPdxLocaSource implements PdxLocaSource {
     }
 
     @Override
-    public List<String> getKeys() throws ArgumentException, SystemException {
+    public List<String> getKeys(PdxLocaFilter filter) throws ArgumentException, SystemException {
         return List.of();
     }
 
     @Override
-    public boolean exists(String key) {
+    public boolean exists(String key, PdxLocaFilter filter) {
         try {
             return elasticsearchClient.exists(ExistsRequest.of(
-                    g -> g.index(String.join(",", this.filter.getIndecies())).id(key))
+                    g -> g.index(String.join(",", filter.getIndecies())).id(key))
             ).value();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void apply(PdxLocaSourceFilter filter) {
-        this.filter = filter;
     }
 }

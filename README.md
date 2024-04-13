@@ -18,10 +18,10 @@ Invite this bot to your discord server.Click this link.
 
 > https://discord.com/api/oauth2/authorize?client_id=697306988685557841&permissions=2048&scope=bot
 
-### 2. Commands common
+### 2. Common Commands
 
 ```
-Pdx:options
+::options
 ```
 
 #### update Options
@@ -33,8 +33,10 @@ Pdx:options
 Example
 
 ```
-Pdx:l
+::l
 ```
+
+Dictionary : https://docs.google.com/spreadsheets/d/1hvO4Z4m_zMjhHPGH-BhKcmiHgfbPo7hY4xfpPWwKH6E/edit?usp=sharing
 
 ### 3. Commands
 

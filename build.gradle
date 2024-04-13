@@ -87,7 +87,7 @@ repositories {
         url = uri("https://maven.pkg.github.com/matanki-saito/pdx-txt-java")
         credentials {
             username = 'matanki-saito'
-            password = System.getenv("GITHUB_TOKEN")
+            password = System.getenv("MY_GITHUB_TOKEN_FOR_DOWNLOAD_POM")
         }
     }
 }

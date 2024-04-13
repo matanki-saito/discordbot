@@ -21,13 +21,14 @@ jobs:
           java-version: 21
       - name: publish application docker to github packages
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN_FOR_DOWNLOAD_POM }}
+          MY_GITHUB_TOKEN_FOR_DOWNLOAD_POM: ${{ secrets.MY_GITHUB_TOKEN_FOR_DOWNLOAD_POM }}
         run: |
+          printenv
           echo ${{ secrets.DOCKER_PASS }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
           ./gradlew docker dockerPush
       - name: update version and tagging
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN_FOR_DOWNLOAD_POM }}
+          MY_GITHUB_TOKEN_FOR_DOWNLOAD_POM: ${{ secrets.MY_GITHUB_TOKEN_FOR_DOWNLOAD_POM }}
         run: |
           git config --local user.email "matanki.saito@gmail.com"
           git config --local user.name "matanki.saito"

@@ -3,9 +3,15 @@ package com.popush.henrietta.biz.project.search;
 import com.deepl.api.DeepLException;
 import com.deepl.api.Translator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.matanki_saito.rico.exception.ArgumentException;
+import com.github.matanki_saito.rico.exception.SystemException;
+import com.github.matanki_saito.rico.loca.PdxLocaFilter;
+import com.github.matanki_saito.rico.loca.PdxLocaMatchPattern;
+import com.github.matanki_saito.rico.loca.PdxLocaYmlTool;
 import com.github.ygimenez.method.Pages;
 import com.github.ygimenez.model.Page;
 import com.popush.henrietta.biz.project.Project;
+import com.popush.henrietta.biz.project.loca.EsPdxLocaSource;
 import com.popush.henrietta.biz.project.states.ParatranzAggregationReport;
 import com.popush.henrietta.biz.project.states.ParatranzEntry;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +46,12 @@ import java.util.regex.Pattern;
 @Slf4j
 @RequiredArgsConstructor
 @Scope("prototype")
+
 public class SearchProject implements Project {
     private final RestHighLevelClient restHighLevelClient;
     private final ObjectMapper elasticObjectMapper;
+    private final EsPdxLocaSource esPdxLocaSource;
+    private final PdxLocaMatchPattern pdxLocaMatchPattern;
 
     private final Translator deeplTranslator;
 
@@ -66,7 +75,7 @@ public class SearchProject implements Project {
 
         type = matcher.group(1);
         opecode = matcher.group(2);
-        searchWords = List.of(matcher.group(3).split("[\s　]"));
+        searchWords = List.of(matcher.group(3).split("[ 　]"));
         messageChannel = event.getChannel();
 
         return true;
@@ -74,6 +83,7 @@ public class SearchProject implements Project {
 
     @Override
     public void execute() {
+
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
         // Match selection
@@ -169,7 +179,7 @@ public class SearchProject implements Project {
             searchBuilder.aggregation(aggBuilders);
         }
 
-        if (!String.join("", searchWords).equals("")) {
+        if (!String.join("", searchWords).isEmpty()) {
             searchBuilder.query(boolQuery);
         }
         SearchRequest request = new SearchRequest(type).source(searchBuilder);
@@ -183,16 +193,16 @@ public class SearchProject implements Project {
         // out selection
         final ArrayList<Page> pages = new ArrayList<>();
         var results = List.of(response.getHits().getHits());
-        if (results.size() == 0) {
+        if (results.isEmpty()) {
             EmbedBuilder builder = new EmbedBuilder();
             builder.appendDescription("見つかりませんでした");
-            pages.add(new Page(builder.build()));
+            pages.add(Page.of(builder.build()));
+
         } else if (opecode.contains("r")) {
             final EmbedBuilder builder = new EmbedBuilder();
 
             Terms game = response.getAggregations().get("game");
             for (Terms.Bucket gameBucket : game.getBuckets()) {
-                var gameId = gameBucket.getKeyAsString();
                 var reportBuilder = ParatranzAggregationReport.builder();
 
                 Range sizeOriginal = gameBucket.getAggregations().get("size_original");
@@ -221,7 +231,8 @@ public class SearchProject implements Project {
                             false);
                 });
             }
-            pages.add(new Page(builder.build()));
+            pages.add(Page.of(builder.build()));
+
         } else if (opecode.contains("g")) {
             List<String> result = new ArrayList<>();
 
@@ -263,13 +274,14 @@ public class SearchProject implements Project {
             }
             EmbedBuilder builder = new EmbedBuilder();
             builder.appendDescription(String.join("\n", result));
-            pages.add(new Page(builder.build()));
+            pages.add(Page.of(builder.build()));
         } else {
             var length = results.size();
             if (opecode.contains("d"))
                 length = 3;
 
             for (var idx = 0; idx < length; idx++) {
+
                 final EmbedBuilder builder = new EmbedBuilder();
 
                 ParatranzEntry data;
@@ -283,6 +295,21 @@ public class SearchProject implements Project {
                         data.getPzPjCode(),
                         data.getKey());
                 final var key = String.format("[%s](%s)", data.getKey(), url);
+
+
+                var normalizedText = "";
+                try {
+                    normalizedText = PdxLocaYmlTool.normalize(
+                            data.getKey(),
+                            esPdxLocaSource,
+                            pdxLocaMatchPattern,
+                            PdxLocaFilter
+                                    .builder()
+                                    .indecies(List.of(type))
+                                    .build());
+                } catch (SystemException | ArgumentException e) {
+                    //
+                }
 
                 builder.appendDescription(
                         String.format("%d件見つかりました。%d件目を表示します（最大%d件）", results.size(), idx + 1, length));
@@ -299,6 +326,11 @@ public class SearchProject implements Project {
 
                 builder.addField("translation",
                         StringUtils.abbreviate(Optional.ofNullable(data.getTranslation()).orElse("不明"),
+                                1000),
+                        false);
+
+                builder.addField("demo text（実験中）",
+                        StringUtils.abbreviate(Optional.ofNullable(normalizedText).orElse("不明"),
                                 1000),
                         false);
 
@@ -319,9 +351,10 @@ public class SearchProject implements Project {
                                 1000),
                         false);
 
-                pages.add(new Page(builder.build()));
+                pages.add(Page.of(builder.build()));
             }
         }
+
 
         // send
         messageChannel.sendMessageEmbeds((MessageEmbed) pages.get(0).getContent()).queue(success -> {

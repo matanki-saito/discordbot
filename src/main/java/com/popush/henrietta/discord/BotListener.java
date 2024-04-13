@@ -1,5 +1,6 @@
 package com.popush.henrietta.discord;
 
+
 import com.popush.henrietta.biz.discussion.DiscussionFlow;
 import com.popush.henrietta.biz.project.SearchFlow;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -23,20 +23,16 @@ public class BotListener extends ListenerAdapter {
     private final SearchFlow searchFlow;
 
     @Override
-    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
         MDC.put("X-Track", UUID.randomUUID().toString());
-
         searchFlow.messageReceived(event);
-
         MDC.clear();
     }
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
         MDC.put("X-Track", UUID.randomUUID().toString());
-
         discussionFlow.messageReactionAdd(event);
-
         MDC.clear();
     }
 }

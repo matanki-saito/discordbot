@@ -18,7 +18,25 @@ Invite this bot to your discord server.Click this link.
 
 > https://discord.com/api/oauth2/authorize?client_id=697306988685557841&permissions=2048&scope=bot
 
-### 2. Commands
+### 2. Commands common
+
+```
+Pdx:options
+```
+
+#### update Options
+
+| Code | Description       |
+|------|-------------------|
+| l    | Update dictionary |
+
+Example
+
+```
+Pdx:l
+```
+
+### 3. Commands
 
 ```
 SearchPrefix::options search-word ...
@@ -38,38 +56,38 @@ ignored.
 #### Search Options
 
 | Code   | Description |
-|--------|------------|
-| a      |  words AND |
-| (none) |  words OR  |
+|--------|-------------|
+| a      | words AND   |
+| (none) | words OR    |
 
 #### Match Options
 
-| Code | Description |
-| ---- | ---- |
-| g | list mode |
-| b | Partial Match |
+| Code | Description   |
+|------|---------------|
+| g    | list mode     |
+| b    | Partial Match |
 
 #### Source Options
 
-| Code | Description |
-|------| ---- |
+| Code | Description                      |
+|------|----------------------------------|
 | t    | Search source is translated text |
-| k    | Search source is key  |
-| o    | Search source is original text |
+| k    | Search source is key             |
+| o    | Search source is original text   |
 
 #### output Options
 
-| Code   | Description   |
-|--------|---------------|
-| g      | List          |
-| r      | Aggregation   |
-| (none) | search        |
+| Code   | Description |
+|--------|-------------|
+| g      | List        |
+| r      | Aggregation |
+| (none) | search      |
 
 #### search options
 
-| Code   | Description        |
-|--------|--------------------|
-| d      | translate by DeepL |
+| Code | Description        |
+|------|--------------------|
+| d    | translate by DeepL |
 
 #### Search-word
 

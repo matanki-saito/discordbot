@@ -41,7 +41,7 @@ buildscript {
             'micrometer'           : '1.12.4',
 
             // PDXテキストの展開
-            'rico'                 : '0.0.14',
+            'rico'                 : '0.0.17',
 
             // deepl翻訳用SDK
             'deepl'                : '1.1.0',

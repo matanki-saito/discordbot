@@ -55,7 +55,7 @@ public class SearchProject implements Project {
 
     private final Translator deeplTranslator;
 
-    private static final Pattern p = Pattern.compile("^([a-zA-Z\\d]+)::([a-zA-Z\\d]*)[\s　]*(.*)");
+    private static final Pattern p = Pattern.compile("^([a-zA-Z\\d]+)::([a-zA-Z\\d]*)[ 　]*(.*)");
 
     private String type;
     private String opecode;
@@ -299,7 +299,8 @@ public class SearchProject implements Project {
 
                 var normalizedText = "";
                 try {
-                    normalizedText = PdxLocaYmlTool.normalize(
+                    var tool = PdxLocaYmlTool.builder().build();
+                    normalizedText = tool.normalize(
                             data.getKey(),
                             esPdxLocaSource,
                             pdxLocaMatchPattern,
@@ -355,9 +356,8 @@ public class SearchProject implements Project {
             }
         }
 
-
         // send
-        messageChannel.sendMessageEmbeds((MessageEmbed) pages.get(0).getContent()).queue(success -> {
+        messageChannel.sendMessageEmbeds((MessageEmbed) pages.getFirst().getContent()).queue(success -> {
             Pages.paginate(success, pages,
                     false, 60,
                     TimeUnit.SECONDS);

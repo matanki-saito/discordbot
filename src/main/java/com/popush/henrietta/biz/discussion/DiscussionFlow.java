@@ -14,7 +14,10 @@ import net.dv8tion.jda.api.entities.channel.forums.ForumTagSnowflake;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.kohsuke.github.*;
+import org.kohsuke.github.GHIssue;
+import org.kohsuke.github.GHIssueComment;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -214,7 +217,7 @@ public class DiscussionFlow {
     public void checkPost(JDA jda) throws IOException {
         var repo = gitHub.getRepository(targetGithubRepository);
         var lostIssues = repo
-                .getIssues(GHIssueState.OPEN)
+                .getIssues(org.kohsuke.github.GHIssueState.OPEN)
                 .stream()
                 .filter(x -> tryGetComments(x).stream().noneMatch(c ->
                         tryGetUserLogin(c).equals("matanki-saito") && c.getBody().contains(confirmMessage)))
